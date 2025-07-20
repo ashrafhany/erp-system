@@ -12,8 +12,14 @@ use App\Http\Controllers\Api\InvoiceApiController;
 // API Version 1
 Route::prefix('v1')->group(function () {
 
+    // Test endpoint
+    Route::get('/test', function () {
+        return response()->json(['message' => 'API is working', 'timestamp' => now()]);
+    });
+
     // Dashboard API
-    Route::get('/dashboard', [DashboardApiController::class, 'index']);
+    Route::get('/dashboard/stats', [DashboardApiController::class, 'stats']);
+    Route::get('/dashboard/monthly-overview', [DashboardApiController::class, 'monthlyOverview']);
 
     // Employee Management API
     Route::apiResource('employees', EmployeeApiController::class);
@@ -22,27 +28,26 @@ Route::prefix('v1')->group(function () {
 
     // Attendance Management API
     Route::apiResource('attendance', AttendanceApiController::class);
-    Route::post('attendance/checkin/{employee}', [AttendanceApiController::class, 'checkIn']);
-    Route::post('attendance/checkout/{employee}', [AttendanceApiController::class, 'checkOut']);
-    Route::get('attendance/report/daily', [AttendanceApiController::class, 'dailyReport']);
-    Route::get('attendance/report/monthly', [AttendanceApiController::class, 'monthlyReport']);
+    Route::post('attendance/employees/{employee}/checkin', [AttendanceApiController::class, 'checkIn']);
+    Route::post('attendance/employees/{employee}/checkout', [AttendanceApiController::class, 'checkOut']);
+    Route::get('attendance/reports/daily', [AttendanceApiController::class, 'dailyReport']);
+    Route::get('attendance/reports/monthly', [AttendanceApiController::class, 'monthlyReport']);
 
     // Payroll Management API
     Route::apiResource('payroll', PayrollApiController::class);
-    Route::post('payroll/generate/{employee}', [PayrollApiController::class, 'generatePayroll']);
-    Route::post('payroll/approve/{payroll}', [PayrollApiController::class, 'approve']);
-    Route::get('payroll/report/monthly', [PayrollApiController::class, 'monthlyReport']);
+    Route::post('payroll/employees/{employee}/generate', [PayrollApiController::class, 'generateAutomatic']);
+    Route::post('payroll/{payroll}/approve', [PayrollApiController::class, 'approve']);
+    Route::post('payroll/{payroll}/mark-paid', [PayrollApiController::class, 'markPaid']);
 
     // Customer Management API
     Route::apiResource('customers', CustomerApiController::class);
     Route::get('customers/{customer}/invoices', [CustomerApiController::class, 'invoices']);
+    Route::get('customers/{customer}/balance', [CustomerApiController::class, 'balance']);
 
     // Invoice Management API
     Route::apiResource('invoices', InvoiceApiController::class);
-    Route::post('invoices/{invoice}/items', [InvoiceApiController::class, 'addItem']);
-    Route::delete('invoices/items/{item}', [InvoiceApiController::class, 'removeItem']);
-    Route::post('invoices/{invoice}/send', [InvoiceApiController::class, 'send']);
-    Route::post('invoices/{invoice}/payment', [InvoiceApiController::class, 'recordPayment']);
+    Route::post('invoices/{invoice}/items', [InvoiceApiController::class, 'addItems']);
+    Route::post('invoices/{invoice}/payments', [InvoiceApiController::class, 'addPayment']);
     Route::get('invoices/{invoice}/pdf', [InvoiceApiController::class, 'generatePdf']);
 
 });
