@@ -225,135 +225,133 @@ The system comes with comprehensive sample data:
 - status (Invoice status)
 ```
 
-## 🔒 الأمان
+## 🔒 Security
 
-### الحماية المطبقة
-- **CSRF Protection** - حماية من هجمات CSRF
-- **SQL Injection Prevention** - منع حقن SQL
-- **XSS Protection** - حماية من XSS
-- **Input Validation** - التحقق من صحة المدخلات
-- **Secure Headers** - رؤوس الأمان
+### Implemented Protection
+- **CSRF Protection** - Protection against CSRF attacks
+- **SQL Injection Prevention** - Prevention of SQL injection
+- **XSS Protection** - Protection against XSS
+- **Input Validation** - Input validation
+- **Secure Headers** - Security headers
 
-## 🛠️ التخصيص والتطوير
+## 🛠️ Customization and Development
 
-### إضافة ميزات جديدة
+### Adding New Features
 ```bash
-# إنشاء Migration جديد
+# Create new Migration
 php artisan make:migration create_new_table
 
-# إنشاء Model
+# Create Model
 php artisan make:model ModelName -m
 
-# إنشاء Controller
+# Create Controller
 php artisan make:controller ControllerName --resource
 ```
 
-### تخصيص التصميم
-- الملفات في `resources/views/`
-- استخدام Bootstrap 5 و Font Awesome
-- دعم كامل للغة العربية (RTL)
+### Design Customization
+- Files in `resources/views/`
+- Using Bootstrap 5 and Font Awesome
+- Full Arabic language support (RTL)
 
-## 📊 التقارير المتاحة
+## 📊 Available Reports
 
-### تقارير الحضور
-- تقرير الحضور اليومي
-- تقرير الحضور الشهري
-- تقرير ساعات العمل الإضافية
+### Attendance Reports
+- Daily attendance report
+- Monthly attendance report
+- Overtime hours report
 
-### تقارير الرواتب
-- كشف رواتب شهري
-- تقرير البدلات والخصومات
-- تقرير الضرائب
+### Payroll Reports
+- Monthly payroll statement
+- Allowances and deductions report
+- Tax report
 
-### تقارير المالية
-- تقرير الفواتير
-- تقرير المدفوعات
-- تقرير المبالغ المعلقة
+### Financial Reports
+- Invoice report
+- Payment report
+- Outstanding amounts report
 
-## 🔄 النسخ الاحتياطي
+## 🔄 Backup
 
-### إنشاء نسخة احتياطية
+### Creating Backup
 ```bash
-# نسخ احتياطية لقاعدة البيانات
+# Database backup
 cp database/database.sqlite backup/database_$(date +%Y%m%d).sqlite
 
-# نسخ احتياطية للملفات المرفوعة
+# Files backup
 tar -czf backup/storage_$(date +%Y%m%d).tar.gz storage/
 ```
 
-## 🐛 استكشاف الأخطاء
+## 🐛 Troubleshooting
 
-### مشاكل شائعة وحلولها
+### Common Issues and Solutions
 
-#### خطأ في قاعدة البيانات
+#### Database Error
 ```bash
-# إعادة تشغيل الهجرات
+# Reset migrations
 php artisan migrate:fresh --seed
 ```
 
-#### خطأ في التخزين المؤقت
+#### Cache Error
 ```bash
-# مسح التخزين المؤقت
+# Clear cache
 php artisan cache:clear
 php artisan config:clear
 php artisan view:clear
 ```
 
-## 🔮 الخطط المستقبلية
+## 🔮 Future Plans
 
-### الميزات القادمة
-- [ ] نظام إدارة المخزون
-- [ ] تقارير متقدمة مع الرسوم البيانية
-- [ ] API للتطبيقات الخارجية
-- [ ] نظام الإشعارات
-- [ ] نظام النسخ الاحتياطي التلقائي
-- [ ] دعم عدة لغات
-- [ ] تطبيق موبايل
+### Upcoming Features
+- [ ] Inventory management system
+- [ ] Advanced reports with charts
+- [ ] API for external applications
+- [ ] Notification system
+- [ ] Automatic backup system
+- [ ] Multi-language support
+- [ ] Mobile application
 
-## 🤝 المساهمة
+## 🤝 Contributing
 
-نرحب بمساهماتكم في تطوير النظام!
+We welcome your contributions to system development!
 
-### كيفية المساهمة
-1. Fork المشروع
-2. إنشاء branch جديد (`git checkout -b feature/AmazingFeature`)
-3. Commit التغييرات (`git commit -m 'Add some AmazingFeature'`)
-4. Push إلى البranch (`git push origin feature/AmazingFeature`)
-5. إنشاء Pull Request
+### How to Contribute
+1. Fork the project
+2. Create new branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Create Pull Request
 
-### معايير المساهمة
-- اتباع PSR-12 coding standards
-- كتابة اختبارات للميزات الجديدة
-- توثيق التغييرات في README
-- استخدام التعليقات باللغة العربية
+### Contribution Standards
+- Follow PSR-12 coding standards
+- Write tests for new features
+- Document changes in README
+- Use Arabic comments in code
 
-## 📝 الترخيص
+## 📝 License
 
-هذا المشروع مرخص تحت رخصة MIT - راجع ملف [LICENSE](LICENSE) للتفاصيل.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 📞 الدعم الفني
+## 📞 Support
 
-### الأسئلة الشائعة
+### Frequently Asked Questions
 
-**س: كيف يمكنني إضافة موظف جديد؟**
-ج: اذهب إلى قسم "إدارة الموظفين" واضغط على "إضافة موظف جديد"
+**Q: How can I add a new employee?**
+A: Go to "Employee Management" section and click "Add New Employee"
 
-**س: كيف يمكنني تسجيل حضور الموظفين؟**
-ج: يمكنك استخدام الأزرار السريعة في صفحة تفاصيل الموظف أو إنشاء سجل حضور جديد
+**Q: How can I record employee attendance?**
+A: You can use quick buttons on employee detail page or create new attendance record
 
-**س: كيف يمكنني إنشاء فاتورة؟**
-ج: اذهب إلى قسم "إدارة الفواتير" واضغط على "إنشاء فاتورة جديدة"
-
----
-
-## 🎯 ملخص المشروع
-
-نظام ERP المصغّر هو حل متكامل ومبسط لإدارة الموارد في الشركات الصغيرة والمتوسطة. يوفر النظام جميع الأدوات الأساسية اللازمة لإدارة الموظفين والحضور والرواتب والعملاء والفواتير في واجهة واحدة سهلة الاستخدام.
-
-**تم تطوير النظام باستخدام أحدث التقنيات ووفقاً لأفضل الممارسات في البرمجة، مع دعم كامل للغة العربية وتصميم متجاوب يعمل على جميع الأجهزة.**
-
-</div>
+**Q: How can I create an invoice?**
+A: Go to "Invoice Management" section and click "Create New Invoice"
 
 ---
 
-*آخر تحديث: يوليو 2025*
+## 🎯 Project Summary
+
+The Mini ERP System is a comprehensive and simplified solution for resource management in small and medium enterprises. The system provides all essential tools needed to manage employees, attendance, payroll, customers, and invoices in one easy-to-use interface.
+
+**The system was developed using the latest technologies and following best programming practices, with full Arabic language support and responsive design that works on all devices.**
+
+---
+
+*Last updated: July 2025*
