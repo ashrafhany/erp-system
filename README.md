@@ -1,230 +1,228 @@
-# 🏢 نظام ERP المصغّر - Mini ERP System
+# 🏢 Mini ERP System - نظام ERP المصغّر
 
-نظام إدارة موارد المؤسسة (ERP) مصغّر ومتكامل مبني باستخدام Laravel 11، يوفر إدارة شاملة للموظفين والرواتب والحضور والعملاء والفواتير.
+A comprehensive and integrated mini Enterprise Resource Planning (ERP) system built with Laravel 11, providing complete management for employees, payroll, attendance, customers, and invoicing.
 
-<div dir="rtl">
+## 📋 Table of Contents
 
-## 📋 المحتويات
+- [Features](#-features)
+- [System Requirements](#-system-requirements)
+- [Installation](#-installation)
+- [Usage](#-usage)
+- [System Interfaces](#-system-interfaces)
+- [Database](#-database)
+- [Security](#-security)
+- [Contributing](#-contributing)
+- [Support](#-support)
 
-- [المميزات](#-المميزات)
-- [متطلبات النظام](#-متطلبات-النظام)
-- [التثبيت](#-التثبيت)
-- [الاستخدام](#-الاستخدام)
-- [واجهات النظام](#-واجهات-النظام)
-- [قاعدة البيانات](#-قاعدة-البيانات)
-- [الأمان](#-الأمان)
-- [المساهمة](#-المساهمة)
-- [الدعم الفني](#-الدعم-الفني)
+## ✨ Features
 
-## ✨ المميزات
+### 👥 Employee Management
+- ✅ Add, edit, and delete employees
+- ✅ Track personal and professional information
+- ✅ Department and position management
+- ✅ Employee status tracking (active/inactive/terminated)
+- ✅ Comprehensive employee detail views
 
-### 👥 إدارة الموظفين
-- ✅ إضافة وتعديل وحذف الموظفين
-- ✅ تتبع البيانات الشخصية والوظيفية
-- ✅ إدارة الأقسام والمناصب
-- ✅ تتبع حالة الموظف (نشط/غير نشط/منتهي الخدمة)
-- ✅ عرض تفاصيل شاملة لكل موظف
+### ⏰ Attendance Management
+- ✅ Employee check-in and check-out
+- ✅ Automatic work hours calculation
+- ✅ Attendance status tracking (present/absent/late/half-day)
+- ✅ Daily and monthly attendance reports
+- ✅ Advanced search filters
 
-### ⏰ إدارة الحضور والانصراف
-- ✅ تسجيل دخول وخروج الموظفين
-- ✅ حساب ساعات العمل تلقائياً
-- ✅ تتبع حالات الحضور (حاضر/غائب/متأخر/نصف يوم)
-- ✅ تقارير الحضور اليومية والشهرية
-- ✅ فلاتر بحث متقدمة
+### 💰 Payroll Management
+- ✅ Monthly salary calculations
+- ✅ Overtime and allowance management
+- ✅ Deduction and tax calculations
+- ✅ Payroll approval and payment
+- ✅ Detailed payroll reports
 
-### 💰 إدارة الرواتب
-- ✅ حساب الرواتب الشهرية
-- ✅ إدارة الساعات الإضافية والبدلات
-- ✅ حساب الخصومات والضرائب
-- ✅ اعتماد ودفع الرواتب
-- ✅ تقارير الرواتب التفصيلية
+### 🤝 Customer Management
+- ✅ Comprehensive customer database
+- ✅ Contact and company information tracking
+- ✅ Credit limit management
+- ✅ Customer status and notes tracking
 
-### 🤝 إدارة العملاء
-- ✅ قاعدة بيانات شاملة للعملاء
-- ✅ تتبع بيانات التواصل والشركات
-- ✅ إدارة حدود الائتمان
-- ✅ تتبع حالة العميل وملاحظاته
+### 🧾 Invoice Management
+- ✅ Create and manage invoices
+- ✅ Multiple invoice items support
+- ✅ Automatic tax and discount calculations
+- ✅ Payment status tracking
+- ✅ Partial and full payment recording
 
-### 🧾 إدارة الفواتير
-- ✅ إنشاء وإدارة الفواتير
-- ✅ إضافة عناصر متعددة للفاتورة
-- ✅ حساب الضرائب والخصومات تلقائياً
-- ✅ تتبع حالات الدفع
-- ✅ تسجيل المدفوعات الجزئية والكاملة
+### 📊 Dashboard
+- ✅ Comprehensive system statistics
+- ✅ Key performance indicators
+- ✅ Daily attendance monitoring
+- ✅ Pending and overdue invoice tracking
 
-### 📊 لوحة المراقبة
-- ✅ إحصائيات شاملة للنظام
-- ✅ مؤشرات الأداء الرئيسية
-- ✅ تتبع الحضور اليومي
-- ✅ مراقبة الفواتير المعلقة والمتأخرة
-
-## 🔧 متطلبات النظام
+## 🔧 System Requirements
 
 - **PHP** >= 8.2
 - **Composer** >= 2.0
 - **Laravel** 11.x
-- **قاعدة بيانات**: SQLite (افتراضي) أو MySQL أو PostgreSQL
-- **خادم ويب**: Apache أو Nginx أو Laravel's built-in server
+- **Database**: SQLite (default) or MySQL or PostgreSQL
+- **Web Server**: Apache or Nginx or Laravel's built-in server
 
-### المتطلبات الإضافية
-- **Node.js** >= 16.0 (للواجهة الأمامية)
-- **npm** أو **yarn** (لإدارة الحزم)
+### Additional Requirements
+- **Node.js** >= 16.0 (for frontend)
+- **npm** or **yarn** (for package management)
 
-## 🚀 التثبيت
+## 🚀 Installation
 
-### 1. استنساخ المشروع
+### 1. Clone the Project
 ```bash
 git clone https://github.com/your-username/mini-erp-system.git
 cd mini-erp-system
 ```
 
-### 2. تثبيت التبعيات
+### 2. Install Dependencies
 ```bash
-# تثبيت تبعيات PHP
+# Install PHP dependencies
 composer install
 
-# تثبيت تبعيات JavaScript
+# Install JavaScript dependencies
 npm install
 ```
 
-### 3. إعداد البيئة
+### 3. Environment Setup
 ```bash
-# نسخ ملف البيئة
+# Copy environment file
 cp .env.example .env
 
-# إنشاء مفتاح التطبيق
+# Generate application key
 php artisan key:generate
 ```
 
-### 4. إعداد قاعدة البيانات
+### 4. Database Setup
 ```bash
-# إنشاء ملف قاعدة البيانات SQLite
+# Create SQLite database file
 touch database/database.sqlite
 
-# تشغيل الهجرات
+# Run migrations
 php artisan migrate
 
-# إضافة البيانات التجريبية
+# Seed with sample data
 php artisan db:seed
 ```
 
-### 5. تشغيل النظام
+### 5. Run the System
 ```bash
-# تشغيل خادم Laravel
+# Start Laravel server
 php artisan serve
 
-# تشغيل Vite للواجهة الأمامية (في terminal منفصل)
+# Start Vite for frontend (in separate terminal)
 npm run dev
 ```
 
-النظام سيكون متاحاً على: `http://localhost:8000`
+The system will be available at: `http://localhost:8000`
 
-## 📱 الاستخدام
+## 📱 Usage
 
-### الوصول للنظام
-1. افتح المتصفح وتوجه إلى `http://localhost:8000`
-2. ستظهر لك لوحة المراقبة الرئيسية
-3. استخدم القائمة الجانبية للتنقل بين الأقسام
+### System Access
+1. Open your browser and navigate to `http://localhost:8000`
+2. You will see the main dashboard
+3. Use the sidebar menu to navigate between sections
 
-### البيانات التجريبية
-النظام يأتي مع بيانات تجريبية شاملة:
-- **5 موظفين** في أقسام مختلفة
-- **4 عملاء** مع بيانات كاملة
-- بيانات حضور وراتب نموذجية
+### Sample Data
+The system comes with comprehensive sample data:
+- **5 employees** in different departments
+- **4 customers** with complete information
+- Sample attendance and payroll data
 
-## 🖥️ واجهات النظام
+## 🖥️ System Interfaces
 
-### لوحة المراقبة (`/`)
-- عرض الإحصائيات العامة
-- مؤشرات الأداء الرئيسية
-- آخر الفواتير والأنشطة
+### Dashboard (`/`)
+- Display general statistics
+- Key performance indicators
+- Latest invoices and activities
 
-### إدارة الموظفين (`/employees`)
-- **عرض الموظفين**: `/employees`
-- **إضافة موظف**: `/employees/create`
-- **تفاصيل الموظف**: `/employees/{id}`
-- **تعديل الموظف**: `/employees/{id}/edit`
+### Employee Management (`/employees`)
+- **View Employees**: `/employees`
+- **Add Employee**: `/employees/create`
+- **Employee Details**: `/employees/{id}`
+- **Edit Employee**: `/employees/{id}/edit`
 
-### إدارة الحضور (`/attendance`)
-- **سجلات الحضور**: `/attendance`
-- **تسجيل حضور جديد**: `/attendance/create`
-- **تسجيل دخول سريع**: `/attendance/checkin/{employee}`
-- **تسجيل خروج سريع**: `/attendance/checkout/{employee}`
+### Attendance Management (`/attendance`)
+- **Attendance Records**: `/attendance`
+- **Add New Attendance**: `/attendance/create`
+- **Quick Check-in**: `/attendance/checkin/{employee}`
+- **Quick Check-out**: `/attendance/checkout/{employee}`
 
-### إدارة الرواتب (`/payroll`)
-- **سجلات الرواتب**: `/payroll`
-- **إنشاء راتب جديد**: `/payroll/create`
-- **إنشاء راتب تلقائي**: `/payroll/generate/{employee}`
-- **اعتماد الراتب**: `/payroll/approve/{payroll}`
+### Payroll Management (`/payroll`)
+- **Payroll Records**: `/payroll`
+- **Create New Payroll**: `/payroll/create`
+- **Generate Automatic Payroll**: `/payroll/generate/{employee}`
+- **Approve Payroll**: `/payroll/approve/{payroll}`
 
-### إدارة العملاء (`/customers`)
-- **عرض العملاء**: `/customers`
-- **إضافة عميل**: `/customers/create`
-- **تفاصيل العميل**: `/customers/{id}`
+### Customer Management (`/customers`)
+- **View Customers**: `/customers`
+- **Add Customer**: `/customers/create`
+- **Customer Details**: `/customers/{id}`
 
-### إدارة الفواتير (`/invoices`)
-- **عرض الفواتير**: `/invoices`
-- **إنشاء فاتورة**: `/invoices/create`
-- **تفاصيل الفاتورة**: `/invoices/{id}`
-- **إضافة عناصر**: `/invoices/{id}/items`
+### Invoice Management (`/invoices`)
+- **View Invoices**: `/invoices`
+- **Create Invoice**: `/invoices/create`
+- **Invoice Details**: `/invoices/{id}`
+- **Add Items**: `/invoices/{id}/items`
 
-## 🗄️ قاعدة البيانات
+## 🗄️ Database
 
-### الجداول الرئيسية
+### Main Tables
 
-#### `employees` - الموظفين
+#### `employees` - Employees
 ```sql
-- id (المعرف الفريد)
-- employee_id (رقم الموظف)
-- first_name, last_name (الاسم)
-- email (البريد الإلكتروني)
-- department, position (القسم والمنصب)
-- basic_salary (الراتب الأساسي)
-- hire_date (تاريخ التوظيف)
-- status (الحالة)
+- id (Unique identifier)
+- employee_id (Employee number)
+- first_name, last_name (Name)
+- email (Email address)
+- department, position (Department and position)
+- basic_salary (Basic salary)
+- hire_date (Hire date)
+- status (Status)
 ```
 
-#### `attendances` - الحضور
+#### `attendances` - Attendance
 ```sql
-- id (المعرف الفريد)
-- employee_id (معرف الموظف)
-- date (التاريخ)
-- check_in, check_out (وقت الدخول والخروج)
-- total_hours (إجمالي الساعات)
-- status (حالة الحضور)
+- id (Unique identifier)
+- employee_id (Employee identifier)
+- date (Date)
+- check_in, check_out (Check-in and check-out time)
+- total_hours (Total hours)
+- status (Attendance status)
 ```
 
-#### `payroll_records` - سجلات الرواتب
+#### `payroll_records` - Payroll Records
 ```sql
-- id (المعرف الفريد)
-- employee_id (معرف الموظف)
-- payroll_month (شهر الراتب)
-- basic_salary (الراتب الأساسي)
-- overtime_amount (مبلغ الساعات الإضافية)
-- allowances (البدلات)
-- deductions (الخصومات)
-- net_salary (الراتب الصافي)
+- id (Unique identifier)
+- employee_id (Employee identifier)
+- payroll_month (Payroll month)
+- basic_salary (Basic salary)
+- overtime_amount (Overtime amount)
+- allowances (Allowances)
+- deductions (Deductions)
+- net_salary (Net salary)
 ```
 
-#### `customers` - العملاء
+#### `customers` - Customers
 ```sql
-- id (المعرف الفريد)
-- customer_code (رمز العميل)
-- name (اسم العميل)
-- company_name (اسم الشركة)
-- email, phone (بيانات التواصل)
-- credit_limit (حد الائتمان)
+- id (Unique identifier)
+- customer_code (Customer code)
+- name (Customer name)
+- company_name (Company name)
+- email, phone (Contact information)
+- credit_limit (Credit limit)
 ```
 
-#### `invoices` - الفواتير
+#### `invoices` - Invoices
 ```sql
-- id (المعرف الفريد)
-- invoice_number (رقم الفاتورة)
-- customer_id (معرف العميل)
-- invoice_date, due_date (تواريخ الفاتورة)
-- total_amount (المبلغ الإجمالي)
-- paid_amount (المبلغ المدفوع)
-- status (حالة الفاتورة)
+- id (Unique identifier)
+- invoice_number (Invoice number)
+- customer_id (Customer identifier)
+- invoice_date, due_date (Invoice dates)
+- total_amount (Total amount)
+- paid_amount (Paid amount)
+- status (Invoice status)
 ```
 
 ## 🔒 الأمان
