@@ -56,6 +56,19 @@ A comprehensive and integrated mini Enterprise Resource Planning (ERP) system bu
 - ✅ Daily attendance monitoring
 - ✅ Pending and overdue invoice tracking
 
+### 🔗 RESTful API
+- ✅ Complete RESTful API for all modules
+- ✅ JSON responses with standardized format
+- ✅ CORS support for external applications
+- ✅ Comprehensive error handling
+- ✅ 40+ API endpoints for mobile/web integration
+- ✅ Dashboard statistics API
+- ✅ Employee management API
+- ✅ Attendance tracking API
+- ✅ Payroll processing API
+- ✅ Customer management API
+- ✅ Invoice management API
+
 ## 🔧 System Requirements
 
 - **PHP** >= 8.2
@@ -117,12 +130,42 @@ npm run dev
 
 The system will be available at: `http://localhost:8000`
 
+### 6. API Documentation
+The system includes a comprehensive RESTful API. See `API_DOCUMENTATION.md` for complete API reference with examples and endpoints.
+
+**API Base URL**: `http://localhost:8000/api/v1/`
+
 ## 📱 Usage
 
 ### System Access
 1. Open your browser and navigate to `http://localhost:8000`
 2. You will see the main dashboard
 3. Use the sidebar menu to navigate between sections
+
+### API Access
+The system provides a comprehensive RESTful API for external applications:
+- **Base URL**: `http://localhost:8000/api/v1/`
+- **Content-Type**: `application/json`
+- **Response Format**: JSON with standardized structure
+- **Documentation**: See `API_DOCUMENTATION.md` for complete reference
+
+### Sample API Usage
+```javascript
+// Get dashboard statistics
+GET http://localhost:8000/api/v1/dashboard/stats
+
+// Create new employee
+POST http://localhost:8000/api/v1/employees
+{
+    "name": "John Doe",
+    "email": "john@company.com",
+    "position": "Developer",
+    "salary": 5000
+}
+
+// Employee check-in
+POST http://localhost:8000/api/v1/attendance/employees/1/checkin
+```
 
 ### Sample Data
 The system comes with comprehensive sample data:
@@ -165,6 +208,19 @@ The system comes with comprehensive sample data:
 - **Create Invoice**: `/invoices/create`
 - **Invoice Details**: `/invoices/{id}`
 - **Add Items**: `/invoices/{id}/items`
+
+### API Endpoints (`/api/v1/`)
+- **Dashboard Stats**: `GET /api/v1/dashboard/stats`
+- **Employees**: `GET|POST /api/v1/employees`
+- **Employee Details**: `GET|PUT|DELETE /api/v1/employees/{id}`
+- **Attendance**: `GET|POST /api/v1/attendance`
+- **Check-in/Check-out**: `POST /api/v1/attendance/employees/{id}/checkin|checkout`
+- **Payroll**: `GET|POST /api/v1/payroll`
+- **Customers**: `GET|POST /api/v1/customers`
+- **Invoices**: `GET|POST /api/v1/invoices`
+- **Reports**: `GET /api/v1/attendance/reports/daily|monthly`
+
+*For complete API documentation, see `API_DOCUMENTATION.md`*
 
 ## 🗄️ Database
 
@@ -225,6 +281,16 @@ The system comes with comprehensive sample data:
 - status (Invoice status)
 ```
 
+### API Response Format
+```json
+{
+    "success": true,
+    "message": "Operation completed successfully",
+    "data": { ... },
+    "errors": null
+}
+```
+
 ## 🔒 Security
 
 ### Implemented Protection
@@ -233,6 +299,8 @@ The system comes with comprehensive sample data:
 - **XSS Protection** - Protection against XSS
 - **Input Validation** - Input validation
 - **Secure Headers** - Security headers
+- **API Rate Limiting** - API request rate limiting
+- **CORS Configuration** - Cross-origin resource sharing setup
 
 ## 🛠️ Customization and Development
 
@@ -246,6 +314,9 @@ php artisan make:model ModelName -m
 
 # Create Controller
 php artisan make:controller ControllerName --resource
+
+# Create API Controller
+php artisan make:controller Api/ControllerName --api
 ```
 
 ### Design Customization
@@ -269,6 +340,11 @@ php artisan make:controller ControllerName --resource
 - Invoice report
 - Payment report
 - Outstanding amounts report
+
+### API Integration Reports
+- API usage statistics
+- Response time analytics
+- Error rate monitoring
 
 ## 🔄 Backup
 
@@ -304,11 +380,13 @@ php artisan view:clear
 ### Upcoming Features
 - [ ] Inventory management system
 - [ ] Advanced reports with charts
-- [ ] API for external applications
+- [x] **API for external applications** ✅ **COMPLETED**
 - [ ] Notification system
 - [ ] Automatic backup system
 - [ ] Multi-language support
 - [ ] Mobile application
+- [ ] API authentication (JWT/Sanctum)
+- [ ] Real-time notifications via WebSockets
 
 ## 🤝 Contributing
 
@@ -344,6 +422,12 @@ A: You can use quick buttons on employee detail page or create new attendance re
 **Q: How can I create an invoice?**
 A: Go to "Invoice Management" section and click "Create New Invoice"
 
+**Q: How can I use the API?**
+A: The system provides a RESTful API at `/api/v1/`. See `API_DOCUMENTATION.md` for complete reference with examples.
+
+**Q: Can I integrate this with a mobile app?**
+A: Yes! The API supports CORS and provides JSON responses perfect for mobile app integration.
+
 ---
 
 ## 🎯 Project Summary
@@ -351,6 +435,20 @@ A: Go to "Invoice Management" section and click "Create New Invoice"
 The Mini ERP System is a comprehensive and simplified solution for resource management in small and medium enterprises. The system provides all essential tools needed to manage employees, attendance, payroll, customers, and invoices in one easy-to-use interface.
 
 **The system was developed using the latest technologies and following best programming practices, with full Arabic language support and responsive design that works on all devices.**
+
+### 🚀 New API Features
+- **Complete RESTful API** with 40+ endpoints
+- **Mobile-ready** JSON responses
+- **CORS enabled** for external applications
+- **Standardized error handling** and response format
+- **Comprehensive documentation** with examples
+
+### 📱 Integration Possibilities
+- Mobile applications (Flutter, React Native, Ionic)
+- Web applications (React, Vue, Angular)
+- Third-party system integration
+- Custom dashboard development
+- Automated reporting tools
 
 ---
 

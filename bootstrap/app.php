@@ -12,7 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Add API response middleware to API routes
+        $middleware->api(prepend: [
+            \App\Http\Middleware\ApiResponse::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
