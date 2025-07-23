@@ -69,6 +69,16 @@ A comprehensive and integrated mini Enterprise Resource Planning (ERP) system bu
 - ✅ Customer management API
 - ✅ Invoice management API
 
+### 🔐 Authentication & Security
+- ✅ Laravel Sanctum token-based authentication
+- ✅ User registration and login API
+- ✅ Secure token management
+- ✅ Multi-device session handling
+- ✅ Password change and profile update
+- ✅ Token refresh and revocation
+- ✅ Protected API endpoints
+- ✅ Rate limiting and security middleware
+
 ## 🔧 System Requirements
 
 - **PHP** >= 8.2

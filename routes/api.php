@@ -8,13 +8,32 @@ use App\Http\Controllers\Api\AttendanceApiController;
 use App\Http\Controllers\Api\PayrollApiController;
 use App\Http\Controllers\Api\CustomerApiController;
 use App\Http\Controllers\Api\InvoiceApiController;
+use App\Http\Controllers\Api\AuthApiController;
 
-// API Version 1
-Route::prefix('v1')->group(function () {
+// Authentication API (Public Routes)
+Route::prefix('auth')->group(function () {
+    Route::post('register', [AuthApiController::class, 'register']);
+    Route::post('login', [AuthApiController::class, 'login']);
+});
+
+// Protected Authentication Routes
+Route::middleware('auth:sanctum')->prefix('auth')->group(function () {
+    Route::post('logout', [AuthApiController::class, 'logout']);
+    Route::post('logout-all', [AuthApiController::class, 'logoutAll']);
+    Route::post('refresh', [AuthApiController::class, 'refresh']);
+    Route::get('user', [AuthApiController::class, 'user']);
+    Route::put('change-password', [AuthApiController::class, 'changePassword']);
+    Route::put('update-profile', [AuthApiController::class, 'updateProfile']);
+    Route::get('tokens', [AuthApiController::class, 'tokens']);
+    Route::delete('tokens/{tokenId}', [AuthApiController::class, 'revokeToken']);
+});
+
+// API Version 1 (Protected Routes)
+Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
 
     // Test endpoint
     Route::get('/test', function () {
-        return response()->json(['message' => 'API is working', 'timestamp' => now()]);
+        return response()->json(['message' => 'API is working', 'timestamp' => now(), 'user' => auth()->user()]);
     });
 
     // Dashboard API
@@ -52,17 +71,19 @@ Route::prefix('v1')->group(function () {
 
 });
 
-// Authentication routes (if needed)
-Route::post('/auth/login', function (Request $request) {
-    // Authentication logic here
-    return response()->json(['message' => 'Login endpoint - implement as needed']);
+// Public API Routes (No Authentication Required)
+Route::prefix('v1/public')->group(function () {
+    // Public test endpoint
+    Route::get('/test', function () {
+        return response()->json(['message' => 'Public API is working', 'timestamp' => now()]);
+    });
+
+    // Public company info or any other public endpoints
+    Route::get('/company-info', function () {
+        return response()->json([
+            'company_name' => 'ERP System',
+            'version' => '1.0.0',
+            'api_version' => 'v1'
+        ]);
+    });
 });
-
-Route::post('/auth/logout', function (Request $request) {
-    // Logout logic here
-    return response()->json(['message' => 'Logout successful']);
-})->middleware('auth:sanctum');
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
