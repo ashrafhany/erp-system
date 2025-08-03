@@ -22,10 +22,8 @@ class ApiResponse
         $response->headers->set('X-API-Version', 'v1');
         $response->headers->set('X-Powered-By', 'Mini ERP System');
 
-        // Handle CORS
-        $response->headers->set('Access-Control-Allow-Origin', '*');
-        $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With');
+        // Note: CORS is already handled by Laravel's built-in CORS middleware
+        // which uses the configuration from config/cors.php
 
         return $response;
     }

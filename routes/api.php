@@ -9,6 +9,22 @@ use App\Http\Controllers\Api\PayrollApiController;
 use App\Http\Controllers\Api\CustomerApiController;
 use App\Http\Controllers\Api\InvoiceApiController;
 use App\Http\Controllers\Api\AuthApiController;
+use App\Http\Controllers\Api\ProductApiController;
+use App\Http\Controllers\Api\InventoryApiController;
+
+// Test routes (no authentication required)
+Route::prefix('v1/test')->group(function () {
+    // Product API for testing
+    Route::apiResource('products', ProductApiController::class);
+    Route::get('products/{product}/inventory', [ProductApiController::class, 'inventory']);
+    Route::post('products/{product}/inventory', [ProductApiController::class, 'adjustInventory']);
+    Route::get('products-low-stock', [ProductApiController::class, 'lowStock']);
+
+    // Inventory API for testing
+    Route::apiResource('inventory', InventoryApiController::class);
+    Route::get('inventory-reports/valuation', [InventoryApiController::class, 'valuation']);
+    Route::get('inventory-reports/movements', [InventoryApiController::class, 'movements']);
+});
 
 // Authentication API (Public Routes)
 Route::prefix('auth')->group(function () {
@@ -68,6 +84,17 @@ Route::prefix('v1')->middleware('auth:sanctum')->group(function () {
     Route::post('invoices/{invoice}/items', [InvoiceApiController::class, 'addItems']);
     Route::post('invoices/{invoice}/payments', [InvoiceApiController::class, 'addPayment']);
     Route::get('invoices/{invoice}/pdf', [InvoiceApiController::class, 'generatePdf']);
+
+    // Product Management API
+    Route::apiResource('products', ProductApiController::class);
+    Route::get('products/{product}/inventory', [ProductApiController::class, 'inventory']);
+    Route::post('products/{product}/inventory', [ProductApiController::class, 'adjustInventory']);
+    Route::get('products-low-stock', [ProductApiController::class, 'lowStock']);
+
+    // Inventory Management API
+    Route::apiResource('inventory', InventoryApiController::class);
+    Route::get('inventory-reports/valuation', [InventoryApiController::class, 'valuation']);
+    Route::get('inventory-reports/movements', [InventoryApiController::class, 'movements']);
 
 });
 

@@ -50,6 +50,15 @@ A comprehensive and integrated mini Enterprise Resource Planning (ERP) system bu
 - ✅ Payment status tracking
 - ✅ Partial and full payment recording
 
+### 🏭 Product & Inventory Management
+- ✅ Comprehensive product catalog management
+- ✅ Real-time inventory tracking
+- ✅ Low stock alerts and notifications
+- ✅ Inventory movement history
+- ✅ Stock valuation and reporting
+- ✅ Flexible inventory adjustment (purchases, sales, returns)
+- ✅ Multiple inventory types (initial, purchase, sale, adjustment)
+
 ### 📊 Dashboard
 - ✅ Comprehensive system statistics
 - ✅ Key performance indicators
@@ -68,6 +77,7 @@ A comprehensive and integrated mini Enterprise Resource Planning (ERP) system bu
 - ✅ Payroll processing API
 - ✅ Customer management API
 - ✅ Invoice management API
+- ✅ Products & inventory management API
 
 ### 🔐 Authentication & Security
 - ✅ Laravel Sanctum token-based authentication
@@ -141,9 +151,10 @@ npm run dev
 The system will be available at: `http://localhost:8000`
 
 ### 6. API Documentation
-The system includes a comprehensive RESTful API. See `API_DOCUMENTATION.md` for complete API reference with examples and endpoints.
+The system includes a comprehensive RESTful API. See `API_DOCUMENTATION.md` for complete API reference with examples and endpoints. For testing the API, refer to `API_TESTING_GUIDE.md`.
 
 **API Base URL**: `http://localhost:8000/api/v1/`
+**Test API Base URL (No Authentication)**: `http://localhost:8000/api/v1/test/`
 
 ## 📱 Usage
 
@@ -181,7 +192,9 @@ POST http://localhost:8000/api/v1/attendance/employees/1/checkin
 The system comes with comprehensive sample data:
 - **5 employees** in different departments
 - **4 customers** with complete information
+- **10 products** with initial stock levels
 - Sample attendance and payroll data
+- Sample inventory transactions
 
 ## 🖥️ System Interfaces
 
@@ -219,6 +232,16 @@ The system comes with comprehensive sample data:
 - **Invoice Details**: `/invoices/{id}`
 - **Add Items**: `/invoices/{id}/items`
 
+### Product & Inventory Management (`/products`, `/inventory`)
+- **View Products**: `/products`
+- **Add Product**: `/products/create`
+- **Product Details**: `/products/{id}`
+- **Inventory History**: `/products/{id}/inventory`
+- **Adjust Inventory**: `/products/{id}/inventory/adjust`
+- **Low Stock Report**: `/products/low-stock`
+- **Inventory Valuation**: `/inventory/reports/valuation`
+- **Inventory Movements**: `/inventory/reports/movements`
+
 ### API Endpoints (`/api/v1/`)
 - **Dashboard Stats**: `GET /api/v1/dashboard/stats`
 - **Employees**: `GET|POST /api/v1/employees`
@@ -228,9 +251,15 @@ The system comes with comprehensive sample data:
 - **Payroll**: `GET|POST /api/v1/payroll`
 - **Customers**: `GET|POST /api/v1/customers`
 - **Invoices**: `GET|POST /api/v1/invoices`
+- **Products**: `GET|POST /api/v1/products`
+- **Product Inventory**: `GET|POST /api/v1/products/{id}/inventory`
+- **Low Stock**: `GET /api/v1/products-low-stock`
+- **Inventory**: `GET|POST /api/v1/inventory`
+- **Inventory Reports**: `GET /api/v1/inventory-reports/valuation|movements`
 - **Reports**: `GET /api/v1/attendance/reports/daily|monthly`
 
 *For complete API documentation, see `API_DOCUMENTATION.md`*
+*For API testing guide, see `API_TESTING_GUIDE.md`*
 
 ## 🗄️ Database
 
@@ -289,6 +318,31 @@ The system comes with comprehensive sample data:
 - total_amount (Total amount)
 - paid_amount (Paid amount)
 - status (Invoice status)
+```
+
+#### `products` - Products
+```sql
+- id (Unique identifier)
+- name (Product name)
+- description (Product description)
+- sku (Stock Keeping Unit)
+- price (Selling price)
+- cost (Cost price)
+- category (Product category)
+- tax_rate (Tax rate)
+- status (Product status)
+- image_url (Product image URL)
+```
+
+#### `inventories` - Inventory Records
+```sql
+- id (Unique identifier)
+- product_id (Product identifier)
+- quantity_change (Quantity change)
+- type (Transaction type)
+- reference (Reference number)
+- notes (Notes)
+- unit_cost (Unit cost)
 ```
 
 ### API Response Format
@@ -356,6 +410,36 @@ php artisan make:controller Api/ControllerName --api
 - Response time analytics
 - Error rate monitoring
 
+## 🧪 API Testing
+
+The system provides comprehensive tools for testing the API:
+
+### Postman Collection
+A complete Postman collection is provided for testing all API endpoints:
+- **Collection File**: `Product_Inventory_API_Tests.postman_collection.json`
+- **Environment File**: `Product_Inventory_API_Local.postman_environment.json`
+
+### Command-Line Testing Script
+You can quickly test all API endpoints using the included PHP script:
+```bash
+# Run the API test script
+php test-api.php
+```
+
+### PHPUnit Tests
+The system includes PHPUnit tests for all API endpoints:
+```bash
+# Run API tests
+php artisan test --filter=Api
+```
+
+### Testing Routes (No Authentication)
+For testing purposes, the system provides unauthenticated routes:
+- **Test API Base URL**: `http://localhost:8000/api/v1/test/`
+- These routes allow testing without authentication tokens
+
+For detailed testing instructions, see `API_TESTING_GUIDE.md`.
+
 ## 🔄 Backup
 
 ### Creating Backup
@@ -388,14 +472,15 @@ php artisan view:clear
 ## 🔮 Future Plans
 
 ### Upcoming Features
-- [ ] Inventory management system
+- [x] **Inventory management system** ✅ **COMPLETED**
 - [ ] Advanced reports with charts
 - [x] **API for external applications** ✅ **COMPLETED**
+- [x] **API testing tools** ✅ **COMPLETED**
 - [ ] Notification system
 - [ ] Automatic backup system
 - [ ] Multi-language support
 - [ ] Mobile application
-- [ ] API authentication (JWT/Sanctum)
+- [x] **API authentication (JWT/Sanctum)** ✅ **COMPLETED**
 - [ ] Real-time notifications via WebSockets
 
 ## 🤝 Contributing

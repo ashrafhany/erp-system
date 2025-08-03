@@ -20,6 +20,14 @@ class BaseApiController extends Controller
     }
 
     /**
+     * Alias for successResponse to maintain compatibility
+     */
+    protected function sendResponse($data = null, $message = 'Success', $code = 200): JsonResponse
+    {
+        return $this->successResponse($data, $message, $code);
+    }
+
+    /**
      * Return error response
      */
     protected function errorResponse($message = 'Error', $code = 400, $errors = null): JsonResponse

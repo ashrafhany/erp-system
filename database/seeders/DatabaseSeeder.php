@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             EmployeeSeeder::class,
             CustomerSeeder::class,
             InvoiceSeeder::class,
+            ProductSeeder::class,
         ]);
 
         // إنشاء مستخدم تجريبي للنظام
