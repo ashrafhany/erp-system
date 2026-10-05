@@ -2,7 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -14,16 +13,12 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            WebAccessSeeder::class,
             EmployeeSeeder::class,
             CustomerSeeder::class,
             InvoiceSeeder::class,
             ProductSeeder::class,
         ]);
 
-        // إنشاء مستخدم تجريبي للنظام
-        User::factory()->create([
-            'name' => 'مدير النظام',
-            'email' => 'admin@erp.com',
-        ]);
     }
 }

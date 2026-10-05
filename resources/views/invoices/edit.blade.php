@@ -30,6 +30,9 @@
                 <form action="{{ route('invoices.update', $invoice) }}" method="POST" id="invoice-form">
                     @csrf
                     @method('PUT')
+                    @if($financialLocked)
+                        <div class="alert alert-info">يمكنك تعديل بيانات الفاتورة هنا. البنود والمبالغ مقفولة لأن الفاتورة ملغاة أو لها دفعات مسجلة.</div>
+                    @endif
 
                     <div class="row mb-3">
                         <div class="col-md-6">
@@ -71,22 +74,12 @@
                         </div>
                         <div class="col-md-6">
                             <label for="status" class="form-label">حالة الفاتورة</label>
-                            <select class="form-select @error('status') is-invalid @enderror"
-                                    id="status" name="status">
-                                <option value="draft" {{ old('status', $invoice->status) == 'draft' ? 'selected' : '' }}>مسودة</option>
-                                <option value="sent" {{ old('status', $invoice->status) == 'sent' ? 'selected' : '' }}>مرسلة</option>
-                                <option value="paid" {{ old('status', $invoice->status) == 'paid' ? 'selected' : '' }}>مدفوعة</option>
-                                <option value="overdue" {{ old('status', $invoice->status) == 'overdue' ? 'selected' : '' }}>متأخرة</option>
-                                <option value="cancelled" {{ old('status', $invoice->status) == 'cancelled' ? 'selected' : '' }}>ملغاة</option>
-                            </select>
-                            @error('status')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <input class="form-control" value="{{ ['draft' => 'مسودة', 'sent' => 'مرسلة', 'paid' => 'مدفوعة', 'overdue' => 'متأخرة', 'cancelled' => 'ملغاة'][$invoice->status] ?? $invoice->status }}" readonly>
                         </div>
                     </div>
 
                     <!-- عناصر الفاتورة -->
-                    <div class="mb-4">
+                    <fieldset class="mb-4" @if($financialLocked) disabled @endif>
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h6 class="mb-0">عناصر الفاتورة</h6>
                             <button type="button" class="btn btn-sm btn-outline-primary" id="add-item">
@@ -130,7 +123,7 @@
                                                        placeholder="0.00" onchange="calculateRowTotal(this)" required>
                                             </td>
                                             <td>
-                                                <span class="row-total">{{ number_format($item->total_price, 2) }}</span> ر.س
+                                                <span class="row-total">{{ number_format($item->total_price, 2) }}</span> ج.م
                                             </td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeItem(this)">
@@ -142,7 +135,7 @@
                                 </tbody>
                             </table>
                         </div>
-                    </div>
+                    </fieldset>
 
                     <!-- الملاحظات والإجماليات -->
                     <div class="row">
@@ -164,7 +157,7 @@
                                     <div class="row mb-2">
                                         <div class="col-6">المجموع الفرعي:</div>
                                         <div class="col-6 text-end">
-                                            <span id="subtotal">{{ number_format($invoice->subtotal, 2) }}</span> ر.س
+                                            <span id="subtotal">{{ number_format($invoice->subtotal, 2) }}</span> ج.م
                                         </div>
                                     </div>
 
@@ -175,13 +168,13 @@
                                                    class="form-control form-control-sm @error('discount_amount') is-invalid @enderror"
                                                    id="discount_amount" name="discount_amount"
                                                    value="{{ old('discount_amount', $invoice->discount_amount) }}"
-                                                   onchange="calculateTotal()">
+                                                   onchange="calculateTotal()" @if($financialLocked) disabled @endif>
                                             @error('discount_amount')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-4 text-end">
-                                            <span id="discount_display">{{ number_format($invoice->discount_amount, 2) }}</span> ر.س
+                                            <span id="discount_display">{{ number_format($invoice->discount_amount, 2) }}</span> ج.م
                                         </div>
                                     </div>
 
@@ -192,13 +185,13 @@
                                                    class="form-control form-control-sm @error('tax_amount') is-invalid @enderror"
                                                    id="tax_amount" name="tax_amount"
                                                    value="{{ old('tax_amount', $invoice->tax_amount) }}"
-                                                   onchange="calculateTotal()">
+                                                   onchange="calculateTotal()" @if($financialLocked) disabled @endif>
                                             @error('tax_amount')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-4 text-end">
-                                            <span id="tax_display">{{ number_format($invoice->tax_amount, 2) }}</span> ر.س
+                                            <span id="tax_display">{{ number_format($invoice->tax_amount, 2) }}</span> ج.م
                                         </div>
                                     </div>
 
@@ -207,7 +200,7 @@
                                     <div class="row">
                                         <div class="col-6"><strong>المجموع النهائي:</strong></div>
                                         <div class="col-6 text-end">
-                                            <strong><span id="total">{{ number_format($invoice->total_amount, 2) }}</span> ر.س</strong>
+                                            <strong><span id="total">{{ number_format($invoice->total_amount, 2) }}</span> ج.م</strong>
                                         </div>
                                     </div>
                                 </div>
@@ -269,7 +262,7 @@
                     </p>
                     <p class="mb-0">
                         <i class="fas fa-money-bill-wave me-2"></i>
-                        <strong>المبلغ المدفوع:</strong> {{ number_format($invoice->paid_amount, 2) }} ر.س
+                        <strong>المبلغ المدفوع:</strong> {{ number_format($invoice->paid_amount, 2) }} ج.م
                     </p>
                 </div>
             </div>
@@ -357,7 +350,7 @@ document.addEventListener('DOMContentLoaded', function() {
                        placeholder="0.00" onchange="calculateRowTotal(this)" required>
             </td>
             <td>
-                <span class="row-total">0.00</span> ر.س
+                <span class="row-total">0.00</span> ج.م
             </td>
             <td>
                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeItem(this)">

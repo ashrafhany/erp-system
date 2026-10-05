@@ -4,10 +4,12 @@
 @section('page-title', 'إدارة الفواتير')
 
 @section('page-actions')
+    @can('invoices.create')
     <a href="{{ route('invoices.create') }}" class="btn btn-primary">
         <i class="fas fa-plus me-2"></i>
         إنشاء فاتورة جديدة
     </a>
+    @endcan
 @endsection
 
 @section('content')
@@ -69,7 +71,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h5>{{ $invoices->total() }}</h5>
+                        <h5>{{ $invoiceStats['total'] }}</h5>
                         <small>إجمالي الفواتير</small>
                     </div>
                     <i class="fas fa-file-invoice fa-2x"></i>
@@ -82,7 +84,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h5>{{ $invoices->where('status', 'paid')->count() }}</h5>
+                        <h5>{{ $invoiceStats['paid'] }}</h5>
                         <small>مدفوعة</small>
                     </div>
                     <i class="fas fa-check-circle fa-2x"></i>
@@ -95,7 +97,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h5>{{ $invoices->where('status', 'sent')->count() }}</h5>
+                        <h5>{{ $invoiceStats['pending'] }}</h5>
                         <small>معلقة</small>
                     </div>
                     <i class="fas fa-clock fa-2x"></i>
@@ -108,7 +110,7 @@
             <div class="card-body">
                 <div class="d-flex justify-content-between">
                     <div>
-                        <h5>{{ $invoices->where('status', 'overdue')->count() }}</h5>
+                        <h5>{{ $invoiceStats['overdue'] }}</h5>
                         <small>متأخرة</small>
                     </div>
                     <i class="fas fa-exclamation-triangle fa-2x"></i>
@@ -117,6 +119,10 @@
         </div>
     </div>
 </div>
+
+@if($invoiceStats['inconsistent'] > 0)
+    <div class="alert alert-warning">يوجد {{ $invoiceStats['inconsistent'] }} فواتير ببيانات دفع غير متسقة؛ راجع المبلغ المدفوع وحالة الفاتورة.</div>
+@endif
 
 <!-- قائمة الفواتير -->
 <div class="card">
@@ -167,14 +173,19 @@
                             <td>
                                 @if($invoice->status == 'draft')
                                     <span class="badge bg-secondary">مسودة</span>
+                                @elseif($invoice->status == 'sent' && $invoice->due_date->lt(today()) && $invoice->paid_amount < $invoice->total_amount)
+                                    <span class="badge bg-danger">متأخرة</span>
                                 @elseif($invoice->status == 'sent')
-                                    <span class="badge bg-primary">مرسلة</span>
+                                    <span class="badge bg-primary">{{ $invoice->paid_amount > 0 && $invoice->paid_amount < $invoice->total_amount ? 'مدفوعة جزئيًا' : 'مرسلة' }}</span>
                                 @elseif($invoice->status == 'paid')
                                     <span class="badge bg-success">مدفوعة</span>
                                 @elseif($invoice->status == 'overdue')
-                                    <span class="badge bg-danger">متأخرة</span>
+                                    <span class="badge bg-danger">{{ $invoice->paid_amount > 0 ? 'متأخرة ومدفوعة جزئيًا' : 'متأخرة' }}</span>
                                 @else
                                     <span class="badge bg-warning">ملغاة</span>
+                                @endif
+                                @if($invoice->paid_amount > $invoice->total_amount || ($invoice->status === 'draft' && $invoice->paid_amount > 0) || ($invoice->status === 'paid' && $invoice->paid_amount < $invoice->total_amount))
+                                    <span class="badge bg-warning text-dark">تحتاج مراجعة</span>
                                 @endif
                             </td>
                             <td>
@@ -183,13 +194,14 @@
                                        class="btn btn-sm btn-outline-info">
                                         <i class="fas fa-eye"></i>
                                     </a>
-                                    @if($invoice->status != 'paid')
+                                    @can('invoices.update')
                                         <a href="{{ route('invoices.edit', $invoice) }}"
                                            class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                    @endif
+                                    @endcan
                                     @if($invoice->status == 'draft')
+                                        @can('invoices.delete')
                                         <form action="{{ route('invoices.destroy', $invoice) }}"
                                               method="POST" style="display: inline;">
                                             @csrf
@@ -199,6 +211,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
+                                        @endcan
                                     @endif
                                 </div>
                             </td>
@@ -217,10 +230,12 @@
                 <i class="fas fa-file-invoice fa-4x text-muted mb-3"></i>
                 <h5 class="text-muted">لا توجد فواتير</h5>
                 <p class="text-muted">ابدأ بإنشاء فاتورة جديدة</p>
+                @can('invoices.create')
                 <a href="{{ route('invoices.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>
                     إنشاء فاتورة جديدة
                 </a>
+                @endcan
             </div>
         @endif
     </div>

@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Validator;
 
 class CustomerController extends Controller
 {
+    public function __construct()
+    {
+        $this->requireCrudPermissions('customers');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -78,14 +83,14 @@ class CustomerController extends Controller
      */
     public function show(Customer $customer)
     {
-        $customer->load(['invoices' => function($query) {
-            $query->latest()->take(10);
-        }]);
-
-        $totalInvoices = $customer->invoices()->count();
-        $totalAmount = $customer->invoices()->sum('total_amount');
-        $paidAmount = $customer->invoices()->sum('paid_amount');
-        $outstandingAmount = $customer->getTotalOutstandingAmount();
+        $totalInvoices = $totalAmount = $paidAmount = $outstandingAmount = 0;
+        if (auth()->user()->can('invoices.view')) {
+            $customer->load(['invoices' => fn ($query) => $query->latest()->take(10)]);
+            $totalInvoices = $customer->invoices()->count();
+            $totalAmount = $customer->invoices()->sum('total_amount');
+            $paidAmount = $customer->invoices()->sum('paid_amount');
+            $outstandingAmount = $customer->getTotalOutstandingAmount();
+        }
 
         return view('customers.show', compact(
             'customer',

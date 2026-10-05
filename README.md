@@ -80,6 +80,8 @@ A comprehensive and integrated mini Enterprise Resource Planning (ERP) system bu
 - ✅ Products & inventory management API
 
 ### 🔐 Authentication & Security
+
+Web login and role setup: [WEB_ACCESS.md](WEB_ACCESS.md).
 - ✅ Laravel Sanctum token-based authentication
 - ✅ User registration and login API
 - ✅ Secure token management

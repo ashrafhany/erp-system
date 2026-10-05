@@ -9,14 +9,18 @@
             <i class="fas fa-arrow-left me-2"></i>
             العودة للعملاء
         </a>
+        @can('customers.update')
         <a href="{{ route('customers.edit', $customer) }}" class="btn btn-warning">
             <i class="fas fa-edit me-2"></i>
             تعديل
         </a>
+        @endcan
+        @can('invoices.create')
         <a href="{{ route('invoices.create', ['customer_id' => $customer->id]) }}" class="btn btn-success">
             <i class="fas fa-plus me-2"></i>
             إنشاء فاتورة جديدة
         </a>
+        @endcan
         <div class="btn-group" role="group">
             <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
                 <i class="fas fa-print me-2"></i>
@@ -25,9 +29,6 @@
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="#" onclick="window.print()">
                     <i class="fas fa-print me-2"></i>طباعة
-                </a></li>
-                <li><a class="dropdown-item" href="{{ route('customers.export.pdf', $customer) }}">
-                    <i class="fas fa-file-pdf me-2"></i>تصدير PDF
                 </a></li>
             </ul>
         </div>
@@ -147,6 +148,7 @@
         </div>
 
         <!-- فواتير العميل -->
+        @can('invoices.view')
         <div class="card mt-3">
             <div class="card-header">
                 <div class="d-flex justify-content-between align-items-center">
@@ -216,9 +218,11 @@
                                             <a href="{{ route('invoices.show', $invoice) }}" class="btn btn-outline-primary" title="عرض">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+                                            @can('invoices.update')
                                             <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-outline-warning" title="تعديل">
                                                 <i class="fas fa-edit"></i>
                                             </a>
+                                            @endcan
                                         </div>
                                     </td>
                                 </tr>
@@ -230,19 +234,23 @@
                     <div class="text-center py-4">
                         <i class="fas fa-file-invoice fa-3x text-muted mb-3"></i>
                         <h6 class="text-muted">لا توجد فواتير لهذا العميل</h6>
+                        @can('invoices.create')
                         <a href="{{ route('invoices.create', ['customer_id' => $customer->id]) }}" class="btn btn-primary mt-2">
                             <i class="fas fa-plus me-2"></i>
                             إنشاء أول فاتورة
                         </a>
+                        @endcan
                     </div>
                 @endif
             </div>
         </div>
+        @endcan
     </div>
 
     <!-- الجانب الأيمن -->
     <div class="col-lg-4">
         <!-- ملخص مالي -->
+        @can('invoices.view')
         <div class="card">
             <div class="card-header bg-gradient-primary text-white">
                 <h6 class="card-title mb-0 text-center">
@@ -302,6 +310,7 @@
                 </div>
             </div>
         </div>
+        @endcan
 
         <!-- معلومات سريعة -->
         <div class="card mt-3">
@@ -325,6 +334,7 @@
                         <span class="fw-bold">{{ $customer->updated_at->format('d/m/Y') }}</span>
                     </div>
 
+                    @can('invoices.view')
                     @if($customer->invoices->count() > 0)
                     <div class="info-row mb-2">
                         <i class="fas fa-file-invoice text-success me-2"></i>
@@ -332,6 +342,7 @@
                         <span class="fw-bold">{{ $customer->invoices->first()->created_at->format('d/m/Y') }}</span>
                     </div>
                     @endif
+                    @endcan
 
                     <div class="info-row">
                         <i class="fas fa-{{ $customer->status === 'active' ? 'check-circle text-success' : 'pause-circle text-secondary' }} me-2"></i>
@@ -352,15 +363,19 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
+                    @can('invoices.create')
                     <a href="{{ route('invoices.create', ['customer_id' => $customer->id]) }}" class="btn btn-success btn-sm">
                         <i class="fas fa-plus me-2"></i>
                         إنشاء فاتورة جديدة
                     </a>
+                    @endcan
 
+                    @can('customers.update')
                     <a href="{{ route('customers.edit', $customer) }}" class="btn btn-warning btn-sm">
                         <i class="fas fa-edit me-2"></i>
                         تعديل بيانات العميل
                     </a>
+                    @endcan
 
                     @if($customer->email)
                     <a href="mailto:{{ $customer->email }}" class="btn btn-info btn-sm">
@@ -376,10 +391,12 @@
                     </a>
                     @endif
 
+                    @can('invoices.view')
                     <a href="{{ route('invoices.index', ['customer_id' => $customer->id]) }}" class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-file-invoice me-2"></i>
                         عرض جميع الفواتير
                     </a>
+                    @endcan
                 </div>
             </div>
         </div>

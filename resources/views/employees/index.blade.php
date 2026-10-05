@@ -4,10 +4,12 @@
 @section('page-title', 'إدارة الموظفين')
 
 @section('page-actions')
+    @can('employees.create')
     <a href="{{ route('employees.create') }}" class="btn btn-primary">
         <i class="fas fa-plus me-2"></i>
         إضافة موظف جديد
     </a>
+    @endcan
 @endsection
 
 @section('content')
@@ -73,10 +75,13 @@
                                        class="btn btn-sm btn-outline-info">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    @can('employees.update')
                                     <a href="{{ route('employees.edit', $employee) }}"
                                        class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    @endcan
+                                    @can('employees.delete')
                                     <form action="{{ route('employees.destroy', $employee) }}"
                                           method="POST" style="display: inline;">
                                         @csrf
@@ -86,6 +91,7 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -103,10 +109,12 @@
                 <i class="fas fa-users fa-4x text-muted mb-3"></i>
                 <h5 class="text-muted">لا يوجد موظفين مسجلين</h5>
                 <p class="text-muted">ابدأ بإضافة موظف جديد لإدارة فريق العمل</p>
+                @can('employees.create')
                 <a href="{{ route('employees.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>
                     إضافة موظف جديد
                 </a>
+                @endcan
             </div>
         @endif
     </div>

@@ -4,10 +4,12 @@
 @section('page-title', 'إدارة العملاء')
 
 @section('page-actions')
+    @can('customers.create')
     <a href="{{ route('customers.create') }}" class="btn btn-primary">
         <i class="fas fa-plus me-2"></i>
         إضافة عميل جديد
     </a>
+    @endcan
 @endsection
 
 @section('content')
@@ -113,10 +115,13 @@
                                        class="btn btn-sm btn-outline-info">
                                         <i class="fas fa-eye"></i>
                                     </a>
+                                    @can('customers.update')
                                     <a href="{{ route('customers.edit', $customer) }}"
                                        class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    @endcan
+                                    @can('customers.delete')
                                     <form action="{{ route('customers.destroy', $customer) }}"
                                           method="POST" style="display: inline;">
                                         @csrf
@@ -126,6 +131,7 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -143,10 +149,12 @@
                 <i class="fas fa-user-tie fa-4x text-muted mb-3"></i>
                 <h5 class="text-muted">لا يوجد عملاء مسجلين</h5>
                 <p class="text-muted">ابدأ بإضافة عميل جديد لإدارة قاعدة بيانات العملاء</p>
+                @can('customers.create')
                 <a href="{{ route('customers.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>
                     إضافة عميل جديد
                 </a>
+                @endcan
             </div>
         @endif
     </div>

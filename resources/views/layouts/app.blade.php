@@ -90,55 +90,21 @@
                     </div>
 
                     <ul class="nav flex-column">
-                        <li class="nav-item mb-2">
-                            <a class="nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}"
-                               href="{{ route('dashboard') }}">
-                                <i class="fas fa-tachometer-alt me-2"></i>
-                                لوحة المراقبة
-                            </a>
-                        </li>
-
-                        <li class="nav-item mb-2">
-                            <a class="nav-link {{ request()->routeIs('employees.*') ? 'active' : '' }}"
-                               href="{{ route('employees.index') }}">
-                                <i class="fas fa-users me-2"></i>
-                                إدارة الموظفين
-                            </a>
-                        </li>
-
-                        <li class="nav-item mb-2">
-                            <a class="nav-link {{ request()->routeIs('attendance.*') ? 'active' : '' }}"
-                               href="{{ route('attendance.index') }}">
-                                <i class="fas fa-clock me-2"></i>
-                                الحضور والانصراف
-                            </a>
-                        </li>
-
-                        <li class="nav-item mb-2">
-                            <a class="nav-link {{ request()->routeIs('payroll.*') ? 'active' : '' }}"
-                               href="{{ route('payroll.index') }}">
-                                <i class="fas fa-money-bill-wave me-2"></i>
-                                إدارة الرواتب
-                            </a>
-                        </li>
-
-                        <hr class="my-3">
-
-                        <li class="nav-item mb-2">
-                            <a class="nav-link {{ request()->routeIs('customers.*') ? 'active' : '' }}"
-                               href="{{ route('customers.index') }}">
-                                <i class="fas fa-user-tie me-2"></i>
-                                إدارة العملاء
-                            </a>
-                        </li>
-
-                        <li class="nav-item mb-2">
-                            <a class="nav-link {{ request()->routeIs('invoices.*') ? 'active' : '' }}"
-                               href="{{ route('invoices.index') }}">
-                                <i class="fas fa-file-invoice me-2"></i>
-                                إدارة الفواتير
-                            </a>
-                        </li>
+                        @foreach(getMenuData() as $resource => $icon)
+                            @can($resource . '.view')
+                                @php
+                                    $labels = ['dashboard' => 'لوحة المراقبة', 'employees' => 'إدارة الموظفين', 'departments' => 'إدارة الأقسام', 'attendance' => 'الحضور والانصراف', 'payroll' => 'إدارة الرواتب', 'customers' => 'إدارة العملاء', 'invoices' => 'إدارة الفواتير', 'users' => 'المستخدمون', 'roles' => 'الأدوار والصلاحيات'];
+                                    $routeName = $resource === 'dashboard' ? 'dashboard' : $resource . '.index';
+                                @endphp
+                                @if(Route::has($routeName))
+                                    <li class="nav-item mb-2">
+                                        <a class="nav-link {{ request()->routeIs($resource === 'dashboard' ? 'dashboard' : $resource . '.*') ? 'active' : '' }}" href="{{ route($routeName) }}">
+                                            <i class="{{ $icon }} me-2"></i> {{ $labels[$resource] ?? $resource }}
+                                        </a>
+                                    </li>
+                                @endif
+                            @endcan
+                        @endforeach
                     </ul>
                 </div>
             </nav>
@@ -149,9 +115,15 @@
                 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
                     <h1 class="h2">@yield('page-title', 'لوحة المراقبة')</h1>
                     <div class="btn-toolbar mb-2 mb-md-0">
+                        @php($formSection = request()->routeIs('*.create', '*.edit') ? \Illuminate\Support\Str::beforeLast(request()->route()->getName(), '.') : null)
+                        @if($formSection && \Illuminate\Support\Facades\Route::has($formSection . '.index'))
+                            <a class="btn btn-outline-secondary me-2" href="{{ route($formSection . '.index') }}"><i class="fas fa-arrow-right me-1"></i> رجوع</a>
+                        @endif
+                        <span class="align-self-center me-3">{{ auth()->user()->name }}</span>
                         <div class="btn-group me-2">
                             @yield('page-actions')
                         </div>
+                        <form method="POST" action="{{ route('logout') }}">@csrf<button class="btn btn-outline-secondary" type="submit">خروج</button></form>
                     </div>
                 </div>
 

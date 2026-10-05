@@ -9,6 +9,14 @@ use Illuminate\Support\Facades\Validator;
 
 class PayrollController extends Controller
 {
+    public function __construct()
+    {
+        $this->requireCrudPermissions('payroll');
+        $this->middleware('permission:payroll.generate')->only('generatePayroll');
+        $this->middleware('permission:payroll.approve')->only('approve');
+        $this->middleware('permission:payroll.pay')->only('markPaid');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -83,7 +91,7 @@ class PayrollController extends Controller
                            ->withInput();
         }
 
-        $payroll = PayrollRecord::create($request->all());
+        $payroll = PayrollRecord::create($validator->validated() + ['status' => 'draft', 'gross_salary' => 0, 'net_salary' => 0]);
         $payroll->calculateSalary();
 
         return redirect()->route('payroll.index')
@@ -104,6 +112,7 @@ class PayrollController extends Controller
      */
     public function edit(PayrollRecord $payroll)
     {
+        abort_unless($payroll->status === 'draft', 403);
         $employees = Employee::where('status', 'active')->get();
         return view('payroll.edit', compact('payroll', 'employees'));
     }
@@ -113,6 +122,7 @@ class PayrollController extends Controller
      */
     public function update(Request $request, PayrollRecord $payroll)
     {
+        abort_unless($payroll->status === 'draft', 403);
         $validator = Validator::make($request->all(), [
             'employee_id' => 'required|exists:employees,id',
             'payroll_month' => 'required|date_format:Y-m',
@@ -143,7 +153,7 @@ class PayrollController extends Controller
                            ->withInput();
         }
 
-        $payroll->update($request->all());
+        $payroll->update($validator->validated());
         $payroll->calculateSalary();
 
         return redirect()->route('payroll.index')
@@ -155,6 +165,7 @@ class PayrollController extends Controller
      */
     public function destroy(PayrollRecord $payroll)
     {
+        abort_unless($payroll->status === 'draft', 403);
         $payroll->delete();
 
         return redirect()->route('payroll.index')
@@ -203,12 +214,21 @@ class PayrollController extends Controller
      */
     public function approve(PayrollRecord $payroll)
     {
+        abort_unless($payroll->status === 'draft', 403);
         $payroll->update([
             'status' => 'approved',
-            'payment_date' => now()->toDateString()
         ]);
 
         return redirect()->back()
                        ->with('success', 'تم اعتماد راتب ' . $payroll->employee->full_name);
+    }
+
+    public function markPaid(Request $request, PayrollRecord $payroll)
+    {
+        abort_unless($payroll->status === 'approved', 403);
+        $data = $request->validate(['payment_date' => ['required', 'date']]);
+        $payroll->update(['status' => 'paid', 'payment_date' => $data['payment_date']]);
+
+        return back()->with('success', 'تم تسجيل دفع راتب ' . $payroll->employee->full_name);
     }
 }

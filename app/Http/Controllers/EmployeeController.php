@@ -3,11 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\Department;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class EmployeeController extends Controller
 {
+    public function __construct()
+    {
+        $this->requireCrudPermissions('employees');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -22,7 +29,8 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        return view('employees.create');
+        $departments = Department::orderBy('name')->get();
+        return view('employees.create', compact('departments'));
     }
 
     /**
@@ -37,7 +45,7 @@ class EmployeeController extends Controller
             'email' => 'required|email|unique:employees',
             'phone' => 'nullable|string',
             'address' => 'nullable|string',
-            'department' => 'required|string',
+            'department' => ['required', Rule::exists('departments', 'name')],
             'position' => 'required|string',
             'basic_salary' => 'required|numeric|min:0',
             'hire_date' => 'required|date',
@@ -61,11 +69,12 @@ class EmployeeController extends Controller
      */
     public function show(Employee $employee)
     {
-        $employee->load(['attendances' => function($query) {
-            $query->latest()->take(10);
-        }, 'payrollRecords' => function($query) {
-            $query->latest()->take(6);
-        }]);
+        if (auth()->user()->can('attendance.view')) {
+            $employee->load(['attendances' => fn ($query) => $query->latest()->take(10)]);
+        }
+        if (auth()->user()->can('payroll.view')) {
+            $employee->load(['payrollRecords' => fn ($query) => $query->latest()->take(6)]);
+        }
 
         return view('employees.show', compact('employee'));
     }
@@ -75,7 +84,8 @@ class EmployeeController extends Controller
      */
     public function edit(Employee $employee)
     {
-        return view('employees.edit', compact('employee'));
+        $departments = Department::orderBy('name')->get();
+        return view('employees.edit', compact('employee', 'departments'));
     }
 
     /**
@@ -90,7 +100,7 @@ class EmployeeController extends Controller
             'email' => 'required|email|unique:employees,email,' . $employee->id,
             'phone' => 'nullable|string',
             'address' => 'nullable|string',
-            'department' => 'required|string',
+            'department' => ['required', Rule::exists('departments', 'name')],
             'position' => 'required|string',
             'basic_salary' => 'required|numeric|min:0',
             'hire_date' => 'required|date',
@@ -114,6 +124,9 @@ class EmployeeController extends Controller
      */
     public function destroy(Employee $employee)
     {
+        if ($employee->attendances()->exists() || $employee->payrollRecords()->exists()) {
+            return back()->with('error', 'لا يمكن حذف موظف له سجلات حضور أو رواتب. غيّر حالته إلى غير نشط بدلاً من الحذف.');
+        }
         $employee->delete();
 
         return redirect()->route('employees.index')

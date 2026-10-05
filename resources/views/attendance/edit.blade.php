@@ -188,19 +188,23 @@
                                 <i class="fas fa-times me-2"></i>
                                 إلغاء
                             </a>
+                            @can('attendance.delete')
                             <button type="button" class="btn btn-danger" onclick="deleteAttendance()">
                                 <i class="fas fa-trash me-2"></i>
                                 حذف السجل
                             </button>
+                            @endcan
                         </div>
                     </div>
                 </form>
 
                 <!-- نموذج حذف السجل -->
+                @can('attendance.delete')
                 <form action="{{ route('attendance.destroy', $attendance) }}" method="POST" id="delete-form" class="d-none">
                     @csrf
                     @method('DELETE')
                 </form>
+                @endcan
             </div>
         </div>
     </div>

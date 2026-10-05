@@ -4,10 +4,12 @@
 @section('page-title', 'تفاصيل الموظف')
 
 @section('page-actions')
+    @can('employees.update')
     <a href="{{ route('employees.edit', $employee) }}" class="btn btn-primary">
         <i class="fas fa-edit me-2"></i>
         تعديل البيانات
     </a>
+    @endcan
     <a href="{{ route('employees.index') }}" class="btn btn-secondary">
         <i class="fas fa-arrow-left me-2"></i>
         العودة للقائمة
@@ -90,7 +92,7 @@
                     $todayAttendance = $employee->getTodayAttendance();
                 @endphp
 
-                @if(!$todayAttendance || !$todayAttendance->check_in)
+                @if((!$todayAttendance || !$todayAttendance->check_in) && auth()->user()->can('attendance.checkin'))
                     <form action="{{ route('attendance.checkin', $employee) }}" method="POST" class="mb-2">
                         @csrf
                         <button type="submit" class="btn btn-success w-100">
@@ -98,7 +100,7 @@
                             تسجيل دخول
                         </button>
                     </form>
-                @elseif(!$todayAttendance->check_out)
+                @elseif($todayAttendance && !$todayAttendance->check_out && auth()->user()->can('attendance.checkout'))
                     <form action="{{ route('attendance.checkout', $employee) }}" method="POST" class="mb-2">
                         @csrf
                         <button type="submit" class="btn btn-danger w-100">
@@ -113,6 +115,7 @@
                     </div>
                 @endif
 
+                @can('payroll.generate')
                 <form action="{{ route('payroll.generate', $employee) }}" method="POST">
                     @csrf
                     <input type="hidden" name="month" value="{{ now()->format('Y-m') }}">
@@ -121,6 +124,7 @@
                         إنشاء راتب الشهر الحالي
                     </button>
                 </form>
+                @endcan
             </div>
         </div>
     </div>
@@ -128,6 +132,7 @@
     <!-- الحضور والرواتب -->
     <div class="col-lg-8">
         <!-- آخر سجلات الحضور -->
+        @can('attendance.view')
         <div class="card mb-4">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-primary">
@@ -200,8 +205,10 @@
                 @endif
             </div>
         </div>
+        @endcan
 
         <!-- آخر سجلات الرواتب -->
+        @can('payroll.view')
         <div class="card">
             <div class="card-header py-3 d-flex justify-content-between align-items-center">
                 <h6 class="m-0 font-weight-bold text-primary">
@@ -276,6 +283,7 @@
                 @endif
             </div>
         </div>
+        @endcan
     </div>
 </div>
 @endsection

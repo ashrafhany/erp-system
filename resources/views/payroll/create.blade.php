@@ -32,9 +32,9 @@
                                 <option value="">اختر الموظف</option>
                                 @foreach($employees as $employee)
                                     <option value="{{ $employee->id }}"
-                                            data-salary="{{ $employee->salary }}"
+                                            data-salary="{{ $employee->basic_salary }}"
                                             {{ old('employee_id') == $employee->id ? 'selected' : '' }}>
-                                        {{ $employee->name }} - {{ $employee->department }}
+                                        {{ $employee->full_name }} - {{ $employee->department }}
                                     </option>
                                 @endforeach
                             </select>
@@ -62,7 +62,7 @@
                                        id="basic_salary" name="basic_salary"
                                        value="{{ old('basic_salary') }}"
                                        placeholder="0.00" required onchange="calculateSalary()">
-                                <span class="input-group-text">ر.س</span>
+                                <span class="input-group-text">ج.م</span>
                                 @error('basic_salary')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -93,7 +93,7 @@
                                        id="overtime_rate" name="overtime_rate"
                                        value="{{ old('overtime_rate', 0) }}"
                                        placeholder="0.00" onchange="calculateSalary()">
-                                <span class="input-group-text">ر.س/ساعة</span>
+                                <span class="input-group-text">ج.م/ساعة</span>
                                 @error('overtime_rate')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -107,7 +107,7 @@
                                        id="allowances" name="allowances"
                                        value="{{ old('allowances', 0) }}"
                                        placeholder="0.00" onchange="calculateSalary()">
-                                <span class="input-group-text">ر.س</span>
+                                <span class="input-group-text">ج.م</span>
                                 @error('allowances')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -124,7 +124,7 @@
                                        id="deductions" name="deductions"
                                        value="{{ old('deductions', 0) }}"
                                        placeholder="0.00" onchange="calculateSalary()">
-                                <span class="input-group-text">ر.س</span>
+                                <span class="input-group-text">ج.م</span>
                                 @error('deductions')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -138,7 +138,7 @@
                                        id="tax_amount" name="tax_amount"
                                        value="{{ old('tax_amount', 0) }}"
                                        placeholder="0.00" onchange="calculateSalary()">
-                                <span class="input-group-text">ر.س</span>
+                                <span class="input-group-text">ج.م</span>
                                 @error('tax_amount')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -189,21 +189,21 @@
                     <div class="row mb-2">
                         <div class="col-7">الراتب الأساسي:</div>
                         <div class="col-5 text-end">
-                            <span id="display-basic">0.00</span> ر.س
+                            <span id="display-basic">0.00</span> ج.م
                         </div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-7">أجر العمل الإضافي:</div>
                         <div class="col-5 text-end">
-                            <span id="display-overtime">0.00</span> ر.س
+                            <span id="display-overtime">0.00</span> ج.م
                         </div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-7">البدلات:</div>
                         <div class="col-5 text-end">
-                            <span id="display-allowances">0.00</span> ر.س
+                            <span id="display-allowances">0.00</span> ج.م
                         </div>
                     </div>
 
@@ -212,7 +212,7 @@
                     <div class="row mb-2">
                         <div class="col-7">إجمالي الدخل:</div>
                         <div class="col-5 text-end">
-                            <strong><span id="display-gross">0.00</span> ر.س</strong>
+                            <strong><span id="display-gross">0.00</span> ج.م</strong>
                         </div>
                     </div>
 
@@ -221,14 +221,14 @@
                     <div class="row mb-2">
                         <div class="col-7">الخصومات:</div>
                         <div class="col-5 text-end text-danger">
-                            <span id="display-deductions">0.00</span> ر.س
+                            <span id="display-deductions">0.00</span> ج.م
                         </div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-7">الضرائب:</div>
                         <div class="col-5 text-end text-danger">
-                            <span id="display-tax">0.00</span> ر.س
+                            <span id="display-tax">0.00</span> ج.م
                         </div>
                     </div>
 
@@ -238,7 +238,7 @@
                         <div class="col-7"><strong>صافي الراتب:</strong></div>
                         <div class="col-5 text-end">
                             <strong class="text-success">
-                                <span id="display-net">0.00</span> ر.س
+                                <span id="display-net">0.00</span> ج.م
                             </strong>
                         </div>
                     </div>
@@ -318,9 +318,6 @@ document.addEventListener('DOMContentLoaded', function() {
         loadEmployeeSalary(this);
     });
 
-    // حساب الراتب عند تحميل الصفحة
-    calculateSalary();
-
     function loadEmployeeInfo(select) {
         const employeeInfo = document.getElementById('employee-info');
 
@@ -338,7 +335,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h6 class="text-primary">${employeeName}</h6>
                 <p class="text-muted mb-1">
                     <i class="fas fa-money-bill-wave me-2"></i>
-                    الراتب الأساسي: ${parseFloat(employeeSalary).toFixed(2)} ر.س
+                    الراتب الأساسي: ${parseFloat(employeeSalary).toFixed(2)} ج.م
                 </p>
                 <p class="text-muted mb-0">
                     <i class="fas fa-info-circle me-2"></i>
@@ -352,10 +349,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedOption = select.options[select.selectedIndex];
         const employeeSalary = selectedOption.dataset.salary || '0';
 
-        if (employeeSalary && !document.getElementById('basic_salary').value) {
-            document.getElementById('basic_salary').value = parseFloat(employeeSalary).toFixed(2);
-            calculateSalary();
-        }
+        document.getElementById('basic_salary').value = select.value ? parseFloat(employeeSalary).toFixed(2) : '';
+        calculateSalary();
     }
 
     // حساب الراتب
@@ -389,6 +384,11 @@ document.addEventListener('DOMContentLoaded', function() {
             netElement.classList.remove('text-danger');
             netElement.classList.add('text-success');
         }
+    }
+
+    calculateSalary();
+    if (document.getElementById('employee_id').value) {
+        loadEmployeeInfo(document.getElementById('employee_id'));
     }
 
     // التحقق من صحة النموذج

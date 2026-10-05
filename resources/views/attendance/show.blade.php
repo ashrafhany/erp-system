@@ -9,10 +9,12 @@
             <i class="fas fa-arrow-left me-2"></i>
             العودة للحضور
         </a>
+        @can('attendance.update')
         <a href="{{ route('attendance.edit', $attendance) }}" class="btn btn-warning">
             <i class="fas fa-edit me-2"></i>
             تعديل
         </a>
+        @endcan
         <div class="btn-group" role="group">
             <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
                 <i class="fas fa-print me-2"></i>
@@ -21,9 +23,6 @@
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="#" onclick="window.print()">
                     <i class="fas fa-print me-2"></i>طباعة
-                </a></li>
-                <li><a class="dropdown-item" href="{{ route('attendance.export.pdf', $attendance) }}">
-                    <i class="fas fa-file-pdf me-2"></i>تصدير PDF
                 </a></li>
             </ul>
         </div>
@@ -292,7 +291,7 @@
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
-                    @if(!$attendance->check_in)
+                    @if(!$attendance->check_in && auth()->user()->can('attendance.checkin'))
                         <form action="{{ route('attendance.checkin', $attendance->employee) }}" method="POST">
                             @csrf
                             <button type="submit" class="btn btn-success btn-sm w-100">
@@ -300,7 +299,7 @@
                                 تسجيل دخول
                             </button>
                         </form>
-                    @elseif(!$attendance->check_out)
+                    @elseif(!$attendance->check_out && auth()->user()->can('attendance.checkout'))
                         <form action="{{ route('attendance.checkout', $attendance->employee) }}" method="POST">
                             @csrf
                             <button type="submit" class="btn btn-danger btn-sm w-100">
@@ -315,15 +314,19 @@
                         </div>
                     @endif
 
+                    @can('attendance.update')
                     <a href="{{ route('attendance.edit', $attendance) }}" class="btn btn-outline-warning btn-sm">
                         <i class="fas fa-edit me-2"></i>
                         تعديل السجل
                     </a>
+                    @endcan
 
+                    @can('employees.view')
                     <a href="{{ route('employees.show', $attendance->employee) }}" class="btn btn-outline-primary btn-sm">
                         <i class="fas fa-user me-2"></i>
                         ملف الموظف
                     </a>
+                    @endcan
                 </div>
             </div>
         </div>

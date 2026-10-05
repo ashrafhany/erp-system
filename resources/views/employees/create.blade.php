@@ -92,13 +92,9 @@
                             <select class="form-select @error('department') is-invalid @enderror"
                                     id="department" name="department" required>
                                 <option value="">اختر القسم</option>
-                                <option value="الإدارة" {{ old('department') == 'الإدارة' ? 'selected' : '' }}>الإدارة</option>
-                                <option value="المحاسبة" {{ old('department') == 'المحاسبة' ? 'selected' : '' }}>المحاسبة</option>
-                                <option value="الموارد البشرية" {{ old('department') == 'الموارد البشرية' ? 'selected' : '' }}>الموارد البشرية</option>
-                                <option value="المبيعات" {{ old('department') == 'المبيعات' ? 'selected' : '' }}>المبيعات</option>
-                                <option value="التسويق" {{ old('department') == 'التسويق' ? 'selected' : '' }}>التسويق</option>
-                                <option value="تقنية المعلومات" {{ old('department') == 'تقنية المعلومات' ? 'selected' : '' }}>تقنية المعلومات</option>
-                                <option value="خدمة العملاء" {{ old('department') == 'خدمة العملاء' ? 'selected' : '' }}>خدمة العملاء</option>
+                                @foreach($departments as $department)
+                                    <option value="{{ $department->name }}" {{ old('department') == $department->name ? 'selected' : '' }}>{{ $department->name }}</option>
+                                @endforeach
                             </select>
                             @error('department')
                                 <div class="invalid-feedback">{{ $message }}</div>

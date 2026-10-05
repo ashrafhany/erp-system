@@ -11,6 +11,11 @@ use App\Models\PayrollRecord;
 
 class DashboardController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('permission:dashboard.view')->only('index');
+    }
+
     public function index()
     {
         // إحصائيات عامة

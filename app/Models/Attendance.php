@@ -20,6 +20,7 @@ class Attendance extends Model
 
     protected $casts = [
         'date' => 'date',
+        'total_hours' => 'decimal:2',
         'check_in' => 'datetime:H:i:s',
         'check_out' => 'datetime:H:i:s'
     ];
@@ -34,11 +35,14 @@ class Attendance extends Model
     public function calculateTotalHours()
     {
         if ($this->check_in && $this->check_out) {
-            $checkIn = Carbon::parse($this->date->format('Y-m-d') . ' ' . $this->check_in);
-            $checkOut = Carbon::parse($this->date->format('Y-m-d') . ' ' . $this->check_out);
+            $checkIn = Carbon::parse($this->date->format('Y-m-d') . ' ' . $this->check_in->format('H:i:s'));
+            $checkOut = Carbon::parse($this->date->format('Y-m-d') . ' ' . $this->check_out->format('H:i:s'));
 
-            $totalMinutes = $checkOut->diffInMinutes($checkIn);
+            $totalMinutes = $checkIn->diffInMinutes($checkOut);
             $this->total_hours = round($totalMinutes / 60, 2);
+            $this->save();
+        } else {
+            $this->total_hours = null;
             $this->save();
         }
     }

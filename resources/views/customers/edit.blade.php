@@ -212,7 +212,7 @@
                                 <i class="fas fa-times me-2"></i>
                                 إلغاء
                             </a>
-                            @if($customer->invoices()->count() === 0)
+                            @if($customer->invoices()->count() === 0 && auth()->user()->can('customers.delete'))
                                 <button type="button" class="btn btn-danger" onclick="deleteCustomer()">
                                     <i class="fas fa-trash me-2"></i>
                                     حذف العميل
@@ -222,7 +222,7 @@
                     </div>
                 </form>
 
-                @if($customer->invoices()->count() === 0)
+                @if($customer->invoices()->count() === 0 && auth()->user()->can('customers.delete'))
                 <!-- نموذج حذف العميل -->
                 <form action="{{ route('customers.destroy', $customer) }}" method="POST" id="delete-form" class="d-none">
                     @csrf

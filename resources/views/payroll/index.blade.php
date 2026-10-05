@@ -4,10 +4,12 @@
 @section('page-title', 'إدارة الرواتب')
 
 @section('page-actions')
+    @can('payroll.create')
     <a href="{{ route('payroll.create') }}" class="btn btn-primary">
         <i class="fas fa-plus me-2"></i>
         إنشاء راتب جديد
     </a>
+    @endcan
 @endsection
 
 @section('content')
@@ -198,11 +200,14 @@
                                         <i class="fas fa-eye"></i>
                                     </a>
                                     @if($payroll->status != 'paid')
+                                        @can('payroll.update')
                                         <a href="{{ route('payroll.edit', $payroll) }}"
                                            class="btn btn-sm btn-outline-primary">
                                             <i class="fas fa-edit"></i>
                                         </a>
+                                        @endcan
                                         @if($payroll->status == 'draft')
+                                            @can('payroll.approve')
                                             <form action="{{ route('payroll.approve', $payroll) }}"
                                                   method="POST" style="display: inline;">
                                                 @csrf
@@ -211,7 +216,9 @@
                                                     <i class="fas fa-check"></i>
                                                 </button>
                                             </form>
+                                            @endcan
                                         @endif
+                                        @can('payroll.delete')
                                         <form action="{{ route('payroll.destroy', $payroll) }}"
                                               method="POST" style="display: inline;">
                                             @csrf
@@ -221,6 +228,7 @@
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>
+                                        @endcan
                                     @endif
                                 </div>
                             </td>
@@ -239,10 +247,12 @@
                 <i class="fas fa-money-bill-wave fa-4x text-muted mb-3"></i>
                 <h5 class="text-muted">لا توجد سجلات رواتب</h5>
                 <p class="text-muted">ابدأ بإنشاء سجل راتب جديد</p>
+                @can('payroll.create')
                 <a href="{{ route('payroll.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>
                     إنشاء راتب جديد
                 </a>
+                @endcan
             </div>
         @endif
     </div>

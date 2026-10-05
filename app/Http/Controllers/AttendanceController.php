@@ -10,6 +10,13 @@ use Carbon\Carbon;
 
 class AttendanceController extends Controller
 {
+    public function __construct()
+    {
+        $this->requireCrudPermissions('attendance');
+        $this->middleware('permission:attendance.checkin')->only('checkIn');
+        $this->middleware('permission:attendance.checkout')->only('checkOut');
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -76,7 +83,7 @@ class AttendanceController extends Controller
                            ->withInput();
         }
 
-        $attendance = Attendance::create($request->all());
+        $attendance = Attendance::create($validator->validated());
 
         // حساب ساعات العمل إذا تم إدخال وقت الدخول والخروج
         if ($request->check_in && $request->check_out) {
@@ -137,12 +144,10 @@ class AttendanceController extends Controller
                            ->withInput();
         }
 
-        $attendance->update($request->all());
+        $attendance->update($validator->validated());
 
         // حساب ساعات العمل
-        if ($request->check_in && $request->check_out) {
-            $attendance->calculateTotalHours();
-        }
+        $attendance->calculateTotalHours();
 
         return redirect()->route('attendance.index')
                        ->with('success', 'تم تحديث سجل الحضور بنجاح');

@@ -9,19 +9,31 @@
             <i class="fas fa-arrow-left me-2"></i>
             العودة للرواتب
         </a>
-        @if($payroll->status === 'pending')
+        @if($payroll->status === 'draft')
+            @can('payroll.update')
             <a href="{{ route('payroll.edit', $payroll) }}" class="btn btn-warning">
                 <i class="fas fa-edit me-2"></i>
                 تعديل
             </a>
+            @endcan
+            @can('payroll.approve')
             <form action="{{ route('payroll.approve', $payroll) }}" method="POST" class="d-inline">
                 @csrf
-                @method('PATCH')
                 <button type="submit" class="btn btn-success" onclick="return confirm('هل أنت متأكد من اعتماد هذا السجل؟')">
                     <i class="fas fa-check me-2"></i>
                     اعتماد
                 </button>
             </form>
+            @endcan
+        @endif
+        @if($payroll->status === 'approved')
+            @can('payroll.pay')
+            <form action="{{ route('payroll.pay', $payroll) }}" method="POST" class="d-inline">
+                @csrf
+                <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required class="form-control d-inline-block w-auto">
+                <button type="submit" class="btn btn-success" onclick="return confirm('تأكيد دفع الراتب؟')">تسجيل الدفع</button>
+            </form>
+            @endcan
         @endif
         <div class="btn-group" role="group">
             <button type="button" class="btn btn-outline-primary dropdown-toggle" data-bs-toggle="dropdown">
@@ -31,9 +43,6 @@
             <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="#" onclick="window.print()">
                     <i class="fas fa-print me-2"></i>طباعة
-                </a></li>
-                <li><a class="dropdown-item" href="{{ route('payroll.export.pdf', $payroll) }}">
-                    <i class="fas fa-file-pdf me-2"></i>تصدير PDF
                 </a></li>
             </ul>
         </div>
@@ -108,7 +117,7 @@
                         <div class="salary-item">
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted">الراتب الأساسي:</span>
-                                <span class="fw-bold">{{ number_format($payroll->basic_salary, 2) }} ر.س</span>
+                                <span class="fw-bold">{{ number_format($payroll->basic_salary, 2) }} ج.م</span>
                             </div>
                         </div>
                     </div>
@@ -127,7 +136,7 @@
                         <div class="salary-item">
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted">معدل الساعة الإضافية:</span>
-                                <span class="fw-bold">{{ number_format($payroll->overtime_rate, 2) }} ر.س/ساعة</span>
+                                <span class="fw-bold">{{ number_format($payroll->overtime_rate, 2) }} ج.م/ساعة</span>
                             </div>
                         </div>
                     </div>
@@ -135,7 +144,7 @@
                         <div class="salary-item">
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted">إجمالي أجر العمل الإضافي:</span>
-                                <span class="fw-bold text-success">{{ number_format($payroll->overtime_hours * $payroll->overtime_rate, 2) }} ر.س</span>
+                                <span class="fw-bold text-success">{{ number_format($payroll->overtime_hours * $payroll->overtime_rate, 2) }} ج.م</span>
                             </div>
                         </div>
                     </div>
@@ -146,7 +155,7 @@
                         <div class="salary-item">
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted">البدلات والمكافآت:</span>
-                                <span class="fw-bold text-success">{{ number_format($payroll->allowances, 2) }} ر.س</span>
+                                <span class="fw-bold text-success">{{ number_format($payroll->allowances, 2) }} ج.م</span>
                             </div>
                         </div>
                     </div>
@@ -154,7 +163,7 @@
                         <div class="salary-item">
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted">الخصومات:</span>
-                                <span class="fw-bold text-danger">{{ number_format($payroll->deductions, 2) }} ر.س</span>
+                                <span class="fw-bold text-danger">{{ number_format($payroll->deductions, 2) }} ج.م</span>
                             </div>
                         </div>
                     </div>
@@ -165,7 +174,7 @@
                         <div class="salary-item">
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted">الضرائب:</span>
-                                <span class="fw-bold text-danger">{{ number_format($payroll->tax_amount, 2) }} ر.س</span>
+                                <span class="fw-bold text-danger">{{ number_format($payroll->tax_amount, 2) }} ج.م</span>
                             </div>
                         </div>
                     </div>
@@ -173,7 +182,7 @@
                         <div class="salary-item">
                             <div class="d-flex justify-content-between">
                                 <span class="text-muted">إجمالي الدخل:</span>
-                                <span class="fw-bold">{{ number_format($payroll->gross_salary, 2) }} ر.س</span>
+                                <span class="fw-bold">{{ number_format($payroll->gross_salary, 2) }} ج.م</span>
                             </div>
                         </div>
                     </div>
@@ -317,7 +326,7 @@
                             </div>
                             <div class="col-5 text-end">
                                 <h4 class="mb-0">{{ number_format($payroll->net_salary, 2) }}</h4>
-                                <small>ر.س</small>
+                                <small>ج.م</small>
                             </div>
                         </div>
                     </div>
@@ -354,7 +363,7 @@
                         </div>
                         <div class="row mb-2">
                             <div class="col-6 text-muted">الراتب الأساسي:</div>
-                            <div class="col-6 text-end">{{ number_format($payroll->employee->salary ?? 0, 2) }} ر.س</div>
+                            <div class="col-6 text-end">{{ number_format($payroll->employee->basic_salary ?? 0, 2) }} ج.م</div>
                         </div>
                         <div class="row">
                             <div class="col-6 text-muted">تاريخ التوظيف:</div>
@@ -396,7 +405,7 @@
                             <i class="fas fa-coins"></i>
                         </div>
                         <h6 class="mb-0">{{ number_format($payroll->allowances, 0) }}</h6>
-                        <small class="text-muted">البدلات (ر.س)</small>
+                        <small class="text-muted">البدلات (ج.م)</small>
                     </div>
                 </div>
             </div>

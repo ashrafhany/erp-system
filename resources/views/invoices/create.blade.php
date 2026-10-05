@@ -32,7 +32,7 @@
                                 <option value="">اختر العميل</option>
                                 @foreach($customers as $customer)
                                     <option value="{{ $customer->id }}"
-                                            {{ old('customer_id') == $customer->id ? 'selected' : '' }}>
+                                            {{ old('customer_id', $duplicate?->customer_id) == $customer->id ? 'selected' : '' }}>
                                         {{ $customer->name }}
                                     </option>
                                 @endforeach
@@ -45,7 +45,7 @@
                             <label for="invoice_date" class="form-label">تاريخ الفاتورة <span class="text-danger">*</span></label>
                             <input type="date" class="form-control @error('invoice_date') is-invalid @enderror"
                                    id="invoice_date" name="invoice_date"
-                                   value="{{ old('invoice_date', date('Y-m-d')) }}" required>
+                                   value="{{ old('invoice_date', $duplicate?->invoice_date?->format('Y-m-d') ?? date('Y-m-d')) }}" required>
                             @error('invoice_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -57,22 +57,14 @@
                             <label for="due_date" class="form-label">تاريخ الاستحقاق <span class="text-danger">*</span></label>
                             <input type="date" class="form-control @error('due_date') is-invalid @enderror"
                                    id="due_date" name="due_date"
-                                   value="{{ old('due_date', date('Y-m-d', strtotime('+30 days'))) }}" required>
+                                   value="{{ old('due_date', $duplicate?->due_date?->format('Y-m-d') ?? date('Y-m-d', strtotime('+30 days'))) }}" required>
                             @error('due_date')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
                         <div class="col-md-6">
                             <label for="status" class="form-label">حالة الفاتورة</label>
-                            <select class="form-select @error('status') is-invalid @enderror"
-                                    id="status" name="status">
-                                <option value="draft" {{ old('status', 'draft') == 'draft' ? 'selected' : '' }}>مسودة</option>
-                                <option value="sent" {{ old('status') == 'sent' ? 'selected' : '' }}>مرسلة</option>
-                                <option value="paid" {{ old('status') == 'paid' ? 'selected' : '' }}>مدفوعة</option>
-                            </select>
-                            @error('status')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <input class="form-control" value="مسودة — تحت التجهيز" readonly>
                         </div>
                     </div>
 
@@ -112,7 +104,7 @@
                                 <label for="notes" class="form-label">ملاحظات</label>
                                 <textarea class="form-control @error('notes') is-invalid @enderror"
                                           id="notes" name="notes" rows="4"
-                                          placeholder="أي ملاحظات إضافية...">{{ old('notes') }}</textarea>
+                                          placeholder="أي ملاحظات إضافية...">{{ old('notes', $duplicate?->notes) }}</textarea>
                                 @error('notes')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -125,7 +117,7 @@
                                     <div class="row mb-2">
                                         <div class="col-6">المجموع الفرعي:</div>
                                         <div class="col-6 text-end">
-                                            <span id="subtotal">0.00</span> ر.س
+                                            <span id="subtotal">0.00</span> ج.م
                                         </div>
                                     </div>
 
@@ -135,14 +127,14 @@
                                             <input type="number" step="0.01" min="0"
                                                    class="form-control form-control-sm @error('discount_amount') is-invalid @enderror"
                                                    id="discount_amount" name="discount_amount"
-                                                   value="{{ old('discount_amount', 0) }}"
+                                                   value="{{ old('discount_amount', $duplicate?->discount_amount ?? 0) }}"
                                                    onchange="calculateTotal()">
                                             @error('discount_amount')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-4 text-end">
-                                            <span id="discount_display">0.00</span> ر.س
+                                            <span id="discount_display">0.00</span> ج.م
                                         </div>
                                     </div>
 
@@ -152,14 +144,14 @@
                                             <input type="number" step="0.01" min="0"
                                                    class="form-control form-control-sm @error('tax_amount') is-invalid @enderror"
                                                    id="tax_amount" name="tax_amount"
-                                                   value="{{ old('tax_amount', 0) }}"
+                                                   value="{{ old('tax_amount', $duplicate?->tax_amount ?? 0) }}"
                                                    onchange="calculateTotal()">
                                             @error('tax_amount')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="col-4 text-end">
-                                            <span id="tax_display">0.00</span> ر.س
+                                            <span id="tax_display">0.00</span> ج.م
                                         </div>
                                     </div>
 
@@ -168,7 +160,7 @@
                                     <div class="row">
                                         <div class="col-6"><strong>المجموع النهائي:</strong></div>
                                         <div class="col-6 text-end">
-                                            <strong><span id="total">0.00</span> ر.س</strong>
+                                            <strong><span id="total">0.00</span> ج.م</strong>
                                         </div>
                                     </div>
                                 </div>
@@ -232,6 +224,10 @@
                         <i class="fas fa-check text-success me-2"></i>
                         سيتم إنشاء رقم الفاتورة تلقائياً
                     </li>
+                    <li class="mt-2">
+                        <i class="fas fa-money-bill-wave text-success me-2"></i>
+                        للدفع على دفعات: احفظ القيمة الكاملة، ثم أصدر الفاتورة وسجّل كل دفعة من صفحة التفاصيل.
+                    </li>
                 </ul>
             </div>
         </div>
@@ -281,8 +277,19 @@ document.addEventListener('DOMContentLoaded', function() {
         loadCustomerInfo(this.value);
     });
 
-    // إضافة عنصر أولي
-    addInvoiceItem();
+    const initialItems = @json($initialItems);
+    if (initialItems.length) {
+        initialItems.forEach(item => {
+            addInvoiceItem();
+            const row = document.querySelector('#items-tbody tr:last-child');
+            row.querySelector('[name*="[description]"]').value = item.description;
+            row.querySelector('[name*="[quantity]"]').value = item.quantity;
+            row.querySelector('[name*="[unit_price]"]').value = item.unit_price;
+            row.querySelector('.row-total').textContent = (parseFloat(item.quantity) * parseFloat(item.unit_price)).toFixed(2);
+        });
+    } else {
+        addInvoiceItem();
+    }
 
     function addInvoiceItem() {
         const tbody = document.getElementById('items-tbody');
@@ -302,7 +309,7 @@ document.addEventListener('DOMContentLoaded', function() {
                        placeholder="0.00" onchange="calculateRowTotal(this)" required>
             </td>
             <td>
-                <span class="row-total">0.00</span> ر.س
+                <span class="row-total">0.00</span> ج.م
             </td>
             <td>
                 <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeItem(this)">
@@ -353,6 +360,9 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('tax_display').textContent = tax.toFixed(2);
         document.getElementById('total').textContent = total.toFixed(2);
     }
+
+    calculateTotal();
+    loadCustomerInfo(document.getElementById('customer_id').value);
 
     // تحميل معلومات العميل
     function loadCustomerInfo(customerId) {

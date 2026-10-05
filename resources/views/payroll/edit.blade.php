@@ -58,9 +58,9 @@
                                 <option value="">اختر الموظف</option>
                                 @foreach($employees as $employee)
                                     <option value="{{ $employee->id }}"
-                                            data-salary="{{ $employee->salary }}"
+                                            data-salary="{{ $employee->basic_salary }}"
                                             {{ old('employee_id', $payroll->employee_id) == $employee->id ? 'selected' : '' }}>
-                                        {{ $employee->name }} - {{ $employee->department }}
+                                        {{ $employee->full_name }} - {{ $employee->department }}
                                     </option>
                                 @endforeach
                             </select>
@@ -92,7 +92,7 @@
                                        id="basic_salary" name="basic_salary"
                                        value="{{ old('basic_salary', $payroll->basic_salary) }}"
                                        placeholder="0.00" required onchange="calculateSalary()">
-                                <span class="input-group-text">ر.س</span>
+                                <span class="input-group-text">ج.م</span>
                                 @error('basic_salary')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -123,7 +123,7 @@
                                        id="overtime_rate" name="overtime_rate"
                                        value="{{ old('overtime_rate', $payroll->overtime_rate) }}"
                                        placeholder="0.00" onchange="calculateSalary()">
-                                <span class="input-group-text">ر.س/ساعة</span>
+                                <span class="input-group-text">ج.م/ساعة</span>
                                 @error('overtime_rate')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -137,7 +137,7 @@
                                        id="allowances" name="allowances"
                                        value="{{ old('allowances', $payroll->allowances) }}"
                                        placeholder="0.00" onchange="calculateSalary()">
-                                <span class="input-group-text">ر.س</span>
+                                <span class="input-group-text">ج.م</span>
                                 @error('allowances')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -154,7 +154,7 @@
                                        id="deductions" name="deductions"
                                        value="{{ old('deductions', $payroll->deductions) }}"
                                        placeholder="0.00" onchange="calculateSalary()">
-                                <span class="input-group-text">ر.س</span>
+                                <span class="input-group-text">ج.م</span>
                                 @error('deductions')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -168,7 +168,7 @@
                                        id="tax_amount" name="tax_amount"
                                        value="{{ old('tax_amount', $payroll->tax_amount) }}"
                                        placeholder="0.00" onchange="calculateSalary()">
-                                <span class="input-group-text">ر.س</span>
+                                <span class="input-group-text">ج.م</span>
                                 @error('tax_amount')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
@@ -200,17 +200,17 @@
                                     <div class="col-md-6">
                                         <strong>القيم الحالية:</strong>
                                         <ul class="list-unstyled mb-0 mt-2">
-                                            <li>صافي الراتب الحالي: <span class="text-primary">{{ number_format($payroll->net_salary, 2) }} ر.س</span></li>
-                                            <li>إجمالي الدخل: {{ number_format($payroll->gross_salary, 2) }} ر.س</li>
-                                            <li>إجمالي الخصومات: {{ number_format($payroll->deductions + $payroll->tax_amount, 2) }} ر.س</li>
+                                            <li>صافي الراتب الحالي: <span class="text-primary">{{ number_format($payroll->net_salary, 2) }} ج.م</span></li>
+                                            <li>إجمالي الدخل: {{ number_format($payroll->gross_salary, 2) }} ج.م</li>
+                                            <li>إجمالي الخصومات: {{ number_format($payroll->deductions + $payroll->tax_amount, 2) }} ج.م</li>
                                         </ul>
                                     </div>
                                     <div class="col-md-6">
                                         <strong>القيم الجديدة:</strong>
                                         <ul class="list-unstyled mb-0 mt-2">
-                                            <li>صافي الراتب الجديد: <span class="text-success" id="new-net-salary">{{ number_format($payroll->net_salary, 2) }} ر.س</span></li>
-                                            <li>إجمالي الدخل: <span id="new-gross-salary">{{ number_format($payroll->gross_salary, 2) }} ر.س</span></li>
-                                            <li>إجمالي الخصومات: <span id="new-deductions">{{ number_format($payroll->deductions + $payroll->tax_amount, 2) }} ر.س</span></li>
+                                            <li>صافي الراتب الجديد: <span class="text-success" id="new-net-salary">{{ number_format($payroll->net_salary, 2) }} ج.م</span></li>
+                                            <li>إجمالي الدخل: <span id="new-gross-salary">{{ number_format($payroll->gross_salary, 2) }} ج.م</span></li>
+                                            <li>إجمالي الخصومات: <span id="new-deductions">{{ number_format($payroll->deductions + $payroll->tax_amount, 2) }} ج.م</span></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -228,7 +228,7 @@
                                 <i class="fas fa-times me-2"></i>
                                 إلغاء
                             </a>
-                            @if($payroll->status === 'pending')
+                            @if($payroll->status === 'draft' && auth()->user()->can('payroll.delete'))
                             <button type="button" class="btn btn-danger" onclick="deletePayroll()">
                                 <i class="fas fa-trash me-2"></i>
                                 حذف السجل
@@ -238,7 +238,7 @@
                     </div>
                 </form>
 
-                @if($payroll->status === 'pending')
+                @if($payroll->status === 'draft' && auth()->user()->can('payroll.delete'))
                 <!-- نموذج حذف السجل -->
                 <form action="{{ route('payroll.destroy', $payroll) }}" method="POST" id="delete-form" class="d-none">
                     @csrf
@@ -263,21 +263,21 @@
                     <div class="row mb-2">
                         <div class="col-7">الراتب الأساسي:</div>
                         <div class="col-5 text-end">
-                            <span id="display-basic">{{ number_format($payroll->basic_salary, 2) }}</span> ر.س
+                            <span id="display-basic">{{ number_format($payroll->basic_salary, 2) }}</span> ج.م
                         </div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-7">أجر العمل الإضافي:</div>
                         <div class="col-5 text-end">
-                            <span id="display-overtime">{{ number_format($payroll->overtime_hours * $payroll->overtime_rate, 2) }}</span> ر.س
+                            <span id="display-overtime">{{ number_format($payroll->overtime_hours * $payroll->overtime_rate, 2) }}</span> ج.م
                         </div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-7">البدلات:</div>
                         <div class="col-5 text-end">
-                            <span id="display-allowances">{{ number_format($payroll->allowances, 2) }}</span> ر.س
+                            <span id="display-allowances">{{ number_format($payroll->allowances, 2) }}</span> ج.م
                         </div>
                     </div>
 
@@ -286,7 +286,7 @@
                     <div class="row mb-2">
                         <div class="col-7">إجمالي الدخل:</div>
                         <div class="col-5 text-end">
-                            <strong><span id="display-gross">{{ number_format($payroll->gross_salary, 2) }}</span> ر.س</strong>
+                            <strong><span id="display-gross">{{ number_format($payroll->gross_salary, 2) }}</span> ج.م</strong>
                         </div>
                     </div>
 
@@ -295,14 +295,14 @@
                     <div class="row mb-2">
                         <div class="col-7">الخصومات:</div>
                         <div class="col-5 text-end text-danger">
-                            <span id="display-deductions">{{ number_format($payroll->deductions, 2) }}</span> ر.س
+                            <span id="display-deductions">{{ number_format($payroll->deductions, 2) }}</span> ج.م
                         </div>
                     </div>
 
                     <div class="row mb-2">
                         <div class="col-7">الضرائب:</div>
                         <div class="col-5 text-end text-danger">
-                            <span id="display-tax">{{ number_format($payroll->tax_amount, 2) }}</span> ر.س
+                            <span id="display-tax">{{ number_format($payroll->tax_amount, 2) }}</span> ج.م
                         </div>
                     </div>
 
@@ -312,7 +312,7 @@
                         <div class="col-7"><strong>صافي الراتب:</strong></div>
                         <div class="col-5 text-end">
                             <strong class="text-success">
-                                <span id="display-net">{{ number_format($payroll->net_salary, 2) }}</span> ر.س
+                                <span id="display-net">{{ number_format($payroll->net_salary, 2) }}</span> ج.م
                             </strong>
                         </div>
                     </div>
@@ -324,7 +324,7 @@
                     <div class="row">
                         <div class="col-8">تغيير صافي الراتب:</div>
                         <div class="col-4 text-end">
-                            <span id="salary-difference" class="fw-bold">0.00 ر.س</span>
+                            <span id="salary-difference" class="fw-bold">0.00 ج.م</span>
                         </div>
                     </div>
                 </div>
@@ -348,7 +348,7 @@
                     </p>
                     <p class="text-muted mb-1">
                         <i class="fas fa-money-bill-wave me-2"></i>
-                        الراتب الأساسي: {{ number_format($payroll->employee->salary ?? 0, 2) }} ر.س
+                        الراتب الأساسي: {{ number_format($payroll->employee->basic_salary ?? 0, 2) }} ج.م
                     </p>
                     <p class="text-muted mb-0">
                         <i class="fas fa-calendar me-2"></i>
@@ -418,9 +418,6 @@
 document.addEventListener('DOMContentLoaded', function() {
     const originalNetSalary = {{ $payroll->net_salary }};
 
-    // حساب الراتب عند تحميل الصفحة
-    calculateSalary();
-
     // حساب الراتب
     window.calculateSalary = function() {
         const basicSalary = parseFloat(document.getElementById('basic_salary').value) || 0;
@@ -444,14 +441,14 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('display-net').textContent = netSalary.toFixed(2);
 
         // تحديث المقارنة
-        document.getElementById('new-net-salary').textContent = netSalary.toFixed(2) + ' ر.س';
-        document.getElementById('new-gross-salary').textContent = grossSalary.toFixed(2) + ' ر.س';
-        document.getElementById('new-deductions').textContent = (deductions + taxAmount).toFixed(2) + ' ر.س';
+        document.getElementById('new-net-salary').textContent = netSalary.toFixed(2) + ' ج.م';
+        document.getElementById('new-gross-salary').textContent = grossSalary.toFixed(2) + ' ج.م';
+        document.getElementById('new-deductions').textContent = (deductions + taxAmount).toFixed(2) + ' ج.م';
 
         // حساب الفرق
         const difference = netSalary - originalNetSalary;
         const differenceElement = document.getElementById('salary-difference');
-        differenceElement.textContent = (difference >= 0 ? '+' : '') + difference.toFixed(2) + ' ر.س';
+        differenceElement.textContent = (difference >= 0 ? '+' : '') + difference.toFixed(2) + ' ج.م';
 
         // تغيير لون الفرق
         if (difference > 0) {
@@ -473,6 +470,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    calculateSalary();
+
     // التحقق من صحة النموذج
     document.getElementById('payroll-form').addEventListener('submit', function(e) {
         const basicSalary = parseFloat(document.getElementById('basic_salary').value) || 0;
@@ -487,7 +486,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // تأكيد التعديل إذا كان هناك فرق كبير
         const difference = Math.abs(newNetSalary - originalNetSalary);
         if (difference > 1000) {
-            if (!confirm(`هناك فرق كبير في صافي الراتب (${difference.toFixed(2)} ر.س). هل أنت متأكد من المتابعة؟`)) {
+            if (!confirm(`هناك فرق كبير في صافي الراتب (${difference.toFixed(2)} ج.م). هل أنت متأكد من المتابعة؟`)) {
                 e.preventDefault();
                 return false;
             }

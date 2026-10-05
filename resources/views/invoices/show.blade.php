@@ -9,17 +9,19 @@
             <i class="fas fa-arrow-left me-2"></i>
             العودة للفواتير
         </a>
+        @can('invoices.update')
         <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-warning">
             <i class="fas fa-edit me-2"></i>
             تعديل
         </a>
+        @endcan
         <button type="button" class="btn btn-info" onclick="printInvoice()">
             <i class="fas fa-print me-2"></i>
             طباعة
         </button>
-        <button type="button" class="btn btn-success" onclick="downloadPDF()">
+        <button type="button" class="btn btn-success" onclick="printInvoice()">
             <i class="fas fa-download me-2"></i>
-            تحميل PDF
+            حفظ PDF
         </button>
     </div>
 @endsection
@@ -35,8 +37,8 @@
                     <div class="col-md-6">
                         <h3 class="text-primary">فاتورة</h3>
                         <p class="mb-1"><strong>رقم الفاتورة:</strong> {{ $invoice->invoice_number }}</p>
-                        <p class="mb-1"><strong>تاريخ الفاتورة:</strong> {{ $invoice->invoice_date }}</p>
-                        <p class="mb-0"><strong>تاريخ الاستحقاق:</strong> {{ $invoice->due_date }}</p>
+                        <p class="mb-1"><strong>تاريخ الفاتورة:</strong> {{ $invoice->invoice_date->format('Y-m-d') }}</p>
+                        <p class="mb-0"><strong>تاريخ الاستحقاق:</strong> {{ $invoice->due_date->format('Y-m-d') }}</p>
                     </div>
                     <div class="col-md-6 text-md-end">
                         <span class="badge fs-6
@@ -48,8 +50,8 @@
                             @endif">
                             @switch($invoice->status)
                                 @case('paid') مدفوعة @break
-                                @case('sent') مرسلة @break
-                                @case('overdue') متأخرة @break
+                                @case('sent') {{ $invoice->paid_amount > 0 && $invoice->paid_amount < $invoice->total_amount ? 'مدفوعة جزئيًا' : 'مرسلة' }} @break
+                                @case('overdue') {{ $invoice->paid_amount > 0 ? 'متأخرة ومدفوعة جزئيًا' : 'متأخرة' }} @break
                                 @case('cancelled') ملغاة @break
                                 @default مسودة
                             @endswitch
@@ -63,9 +65,7 @@
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <h6 class="text-muted">معلومات الشركة</h6>
-                        <p class="mb-1"><strong>نظام ERP</strong></p>
-                        <p class="mb-1">الرياض، المملكة العربية السعودية</p>
-                        <p class="mb-0">هاتف: +966 11 1234567</p>
+                        <p class="mb-1"><strong>{{ config('app.name', 'نظام ERP') }}</strong></p>
                     </div>
                     <div class="col-md-6">
                         <h6 class="text-muted">فاتورة إلى</h6>
@@ -100,31 +100,31 @@
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $item->description }}</td>
                                     <td class="text-center">{{ $item->quantity }}</td>
-                                    <td class="text-end">{{ number_format($item->unit_price, 2) }} ر.س</td>
-                                    <td class="text-end">{{ number_format($item->total_price, 2) }} ر.س</td>
+                                    <td class="text-end">{{ number_format($item->unit_price, 2) }} ج.م</td>
+                                    <td class="text-end">{{ number_format($item->total_price, 2) }} ج.م</td>
                                 </tr>
                             @endforeach
                         </tbody>
                         <tfoot class="table-light">
                             <tr>
                                 <td colspan="4" class="text-end"><strong>المجموع الفرعي:</strong></td>
-                                <td class="text-end"><strong>{{ number_format($invoice->subtotal, 2) }} ر.س</strong></td>
+                                <td class="text-end"><strong>{{ number_format($invoice->subtotal, 2) }} ج.م</strong></td>
                             </tr>
                             @if($invoice->discount_amount > 0)
                                 <tr>
                                     <td colspan="4" class="text-end">الخصم:</td>
-                                    <td class="text-end">{{ number_format($invoice->discount_amount, 2) }} ر.س</td>
+                                    <td class="text-end">{{ number_format($invoice->discount_amount, 2) }} ج.م</td>
                                 </tr>
                             @endif
                             @if($invoice->tax_amount > 0)
                                 <tr>
                                     <td colspan="4" class="text-end">الضريبة:</td>
-                                    <td class="text-end">{{ number_format($invoice->tax_amount, 2) }} ر.س</td>
+                                    <td class="text-end">{{ number_format($invoice->tax_amount, 2) }} ج.م</td>
                                 </tr>
                             @endif
                             <tr class="table-primary">
                                 <td colspan="4" class="text-end"><strong>المجموع النهائي:</strong></td>
-                                <td class="text-end"><strong>{{ number_format($invoice->total_amount, 2) }} ر.س</strong></td>
+                                <td class="text-end"><strong>{{ number_format($invoice->total_amount, 2) }} ج.م</strong></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -174,8 +174,15 @@
                 </div>
                 <div class="row mb-0">
                     <div class="col-6">المبلغ المدفوع:</div>
-                    <div class="col-6 text-end">{{ number_format($invoice->paid_amount, 2) }} ر.س</div>
+                    <div class="col-6 text-end">{{ number_format($invoice->paid_amount, 2) }} ج.م</div>
                 </div>
+                <div class="row mt-2">
+                    <div class="col-6">المبلغ المتبقي:</div>
+                    <div class="col-6 text-end fw-bold">{{ number_format(max(0, $invoice->remaining_amount), 2) }} ج.م</div>
+                </div>
+                @if($invoice->paid_amount > 0 && $invoice->remaining_amount > 0)
+                    <div class="badge bg-warning text-dark mt-2">مدفوعة جزئيًا</div>
+                @endif
             </div>
         </div>
 
@@ -188,38 +195,70 @@
                 </h6>
             </div>
             <div class="card-body">
-                @if($invoice->status == 'draft')
-                    <button type="button" class="btn btn-info btn-sm w-100 mb-2" onclick="markAsSent()">
+                <p class="small text-muted">المسودة فاتورة تحت التجهيز. بعد مراجعتها اختر «تحديد كمرسلة»، ثم «تسجيل دفعة». تتحول إلى مدفوعة تلقائيًا عند سداد كامل الإجمالي.</p>
+                @if($invoice->status == 'draft' && auth()->user()->can('invoices.send'))
+                    <form action="{{ route('invoices.send', $invoice) }}" method="POST">@csrf
+                    <button type="submit" class="btn btn-info btn-sm w-100 mb-2" onclick="return confirm('تحديد الفاتورة كمرسلة؟')">
                         <i class="fas fa-paper-plane me-2"></i>
                         تحديد كمرسلة
                     </button>
+                    </form>
                 @endif
 
-                @if($invoice->status != 'paid' && $invoice->status != 'cancelled')
-                    <button type="button" class="btn btn-success btn-sm w-100 mb-2" onclick="markAsPaid()">
-                        <i class="fas fa-check-circle me-2"></i>
-                        تسجيل دفعة
-                    </button>
+                @if(in_array($invoice->status, ['sent', 'overdue']) && $invoice->remaining_amount > 0 && auth()->user()->can('invoices.payment'))
+                    <details class="mb-3">
+                        <summary class="btn btn-success btn-sm w-100">تسجيل دفعة</summary>
+                        <form action="{{ route('invoices.payment', $invoice) }}" method="POST" class="mt-2">
+                            @csrf
+                            <div class="small mb-2">المتبقي: {{ number_format($invoice->remaining_amount, 2) }} ج.م</div>
+                            <label class="form-label">قيمة الدفعة</label>
+                            <input class="form-control mb-2" type="number" name="payment_amount" min="0.01" max="{{ $invoice->remaining_amount }}" step="0.01" value="{{ old('payment_amount') }}" required>
+                            <label class="form-label">تاريخ الدفع</label>
+                            <input class="form-control mb-2" type="date" name="payment_date" value="{{ old('payment_date', date('Y-m-d')) }}" required>
+                            <label class="form-label">طريقة الدفع</label>
+                            <select class="form-select mb-2" name="payment_method" required>
+                                <option value="cash">نقدًا</option><option value="bank_transfer">تحويل بنكي</option><option value="card">بطاقة</option><option value="other">أخرى</option>
+                            </select>
+                            <button class="btn btn-success btn-sm w-100">حفظ الدفعة</button>
+                        </form>
+                    </details>
                 @endif
 
-                @if($invoice->status != 'cancelled')
-                    <button type="button" class="btn btn-danger btn-sm w-100 mb-2" onclick="cancelInvoice()">
+                @if($invoice->paid_amount > $invoice->total_amount || ($invoice->status === 'paid' && $invoice->paid_amount < $invoice->total_amount) || ($invoice->status === 'draft' && $invoice->paid_amount > 0))
+                    <div class="alert alert-warning small">المبلغ المدفوع لا يتوافق مع إجمالي الفاتورة أو حالتها. راجع البيانات القديمة قبل تسجيل أي دفعة جديدة.</div>
+                @endif
+                @can('invoices.reconcile')
+                    @if($invoice->total_amount > 0)
+                        <details class="mb-3">
+                            <summary class="btn btn-outline-warning btn-sm w-100">تصحيح المبلغ المدفوع</summary>
+                            <form action="{{ route('invoices.reconcile', $invoice) }}" method="POST" class="mt-2" onsubmit="return confirm('تأكيد تصحيح المبلغ المدفوع؟')">
+                                @csrf
+                                <label class="form-label">المبلغ الصحيح</label>
+                                <input class="form-control mb-2" type="number" name="paid_amount" min="0" max="{{ $invoice->total_amount }}" step="0.01" value="{{ min($invoice->paid_amount, $invoice->total_amount) }}" required>
+                                <input class="form-control mb-2" name="reason" minlength="5" maxlength="255" placeholder="سبب التصحيح" required>
+                                <button class="btn btn-outline-warning btn-sm w-100">حفظ التصحيح</button>
+                            </form>
+                        </details>
+                    @endif
+                @endcan
+
+                @if($invoice->status === 'draft' && $invoice->paid_amount == 0 && auth()->user()->can('invoices.update'))
+                    <form action="{{ route('invoices.cancel', $invoice) }}" method="POST">@csrf
+                    <button type="submit" class="btn btn-danger btn-sm w-100 mb-2" onclick="return confirm('إلغاء الفاتورة؟')">
                         <i class="fas fa-times-circle me-2"></i>
                         إلغاء الفاتورة
                     </button>
+                    </form>
                 @endif
 
                 <hr class="my-3">
 
-                <button type="button" class="btn btn-outline-primary btn-sm w-100 mb-2" onclick="sendByEmail()">
-                    <i class="fas fa-envelope me-2"></i>
-                    إرسال بالبريد الإلكتروني
-                </button>
-
+                @can('invoices.create')
                 <button type="button" class="btn btn-outline-secondary btn-sm w-100" onclick="duplicateInvoice()">
                     <i class="fas fa-copy me-2"></i>
                     تكرار الفاتورة
                 </button>
+                @endcan
             </div>
         </div>
 
@@ -236,11 +275,11 @@
                     @foreach($invoice->payments as $payment)
                         <div class="d-flex justify-content-between align-items-center mb-2">
                             <div>
-                                <div class="small">{{ $payment->payment_date }}</div>
-                                <div class="text-muted small">{{ $payment->payment_method }}</div>
+                                <div class="small">{{ $payment->payment_date->format('Y-m-d') }}</div>
+                                <div class="text-muted small">{{ ['cash' => 'نقدًا', 'bank_transfer' => 'تحويل بنكي', 'card' => 'بطاقة', 'other' => 'أخرى'][$payment->payment_method] ?? $payment->payment_method }}</div>
                             </div>
                             <div class="text-success fw-bold">
-                                {{ number_format($payment->amount, 2) }} ر.س
+                                {{ number_format($payment->amount, 2) }} ج.م
                             </div>
                         </div>
                         @if(!$loop->last)
@@ -249,6 +288,14 @@
                     @endforeach
                 </div>
             </div>
+        @endif
+        @if($paymentAdjustments->isNotEmpty())
+            <div class="card mt-3"><div class="card-header">تصحيحات المبلغ المدفوع</div><div class="card-body small">
+                @foreach($paymentAdjustments as $adjustment)
+                    <div>{{ $adjustment->created_at }}: {{ number_format($adjustment->old_amount, 2) }} ← {{ number_format($adjustment->new_amount, 2) }} ج.م</div>
+                    <div class="text-muted mb-2">{{ $adjustment->reason }}</div>
+                @endforeach
+            </div></div>
         @endif
     </div>
 </div>
@@ -292,105 +339,10 @@ function printInvoice() {
     window.print();
 }
 
-function downloadPDF() {
-    window.location.href = '/invoices/{{ $invoice->id }}/pdf';
-}
-
-function markAsSent() {
-    if (confirm('هل تريد تحديد هذه الفاتورة كمرسلة؟')) {
-        // إضافة AJAX call هنا
-        updateInvoiceStatus('sent');
-    }
-}
-
-function markAsPaid() {
-    const amount = prompt('أدخل المبلغ المدفوع:', '{{ $invoice->total_amount }}');
-    if (amount && !isNaN(amount) && parseFloat(amount) > 0) {
-        // إضافة AJAX call هنا
-        recordPayment(parseFloat(amount));
-    }
-}
-
-function cancelInvoice() {
-    if (confirm('هل أنت متأكد من إلغاء هذه الفاتورة؟ لا يمكن التراجع عن هذا الإجراء.')) {
-        // إضافة AJAX call هنا
-        updateInvoiceStatus('cancelled');
-    }
-}
-
-function sendByEmail() {
-    alert('سيتم تفعيل هذه الميزة قريباً');
-}
-
 function duplicateInvoice() {
     if (confirm('هل تريد إنشاء فاتورة جديدة بنفس البيانات؟')) {
         window.location.href = '/invoices/create?duplicate={{ $invoice->id }}';
     }
-}
-
-function updateInvoiceStatus(status) {
-    // هنا يمكن إضافة AJAX call لتحديث حالة الفاتورة
-    // مؤقتاً سنقوم بإعادة تحميل الصفحة
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/invoices/{{ $invoice->id }}/status';
-
-    const csrfToken = document.createElement('input');
-    csrfToken.type = 'hidden';
-    csrfToken.name = '_token';
-    csrfToken.value = '{{ csrf_token() }}';
-
-    const methodField = document.createElement('input');
-    methodField.type = 'hidden';
-    methodField.name = '_method';
-    methodField.value = 'PATCH';
-
-    const statusField = document.createElement('input');
-    statusField.type = 'hidden';
-    statusField.name = 'status';
-    statusField.value = status;
-
-    form.appendChild(csrfToken);
-    form.appendChild(methodField);
-    form.appendChild(statusField);
-
-    document.body.appendChild(form);
-    form.submit();
-}
-
-function recordPayment(amount) {
-    // هنا يمكن إضافة AJAX call لتسجيل دفعة
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = '/invoices/{{ $invoice->id }}/payment';
-
-    const csrfToken = document.createElement('input');
-    csrfToken.type = 'hidden';
-    csrfToken.name = '_token';
-    csrfToken.value = '{{ csrf_token() }}';
-
-    const amountField = document.createElement('input');
-    amountField.type = 'hidden';
-    amountField.name = 'amount';
-    amountField.value = amount;
-
-    const dateField = document.createElement('input');
-    dateField.type = 'hidden';
-    dateField.name = 'payment_date';
-    dateField.value = new Date().toISOString().split('T')[0];
-
-    const methodField = document.createElement('input');
-    methodField.type = 'hidden';
-    methodField.name = 'payment_method';
-    methodField.value = 'cash';
-
-    form.appendChild(csrfToken);
-    form.appendChild(amountField);
-    form.appendChild(dateField);
-    form.appendChild(methodField);
-
-    document.body.appendChild(form);
-    form.submit();
 }
 </script>
 @endpush

@@ -4,10 +4,12 @@
 @section('page-title', 'إدارة الحضور والانصراف')
 
 @section('page-actions')
+    @can('attendance.create')
     <a href="{{ route('attendance.create') }}" class="btn btn-primary">
         <i class="fas fa-plus me-2"></i>
         تسجيل حضور جديد
     </a>
+    @endcan
 @endsection
 
 @section('content')
@@ -186,16 +188,19 @@
                             </td>
                             <td>
                                 <div class="btn-group" role="group">
-                                    @if(!$attendance->check_in)
+                                    @if(!$attendance->check_in && auth()->user()->can('attendance.checkin'))
                                         <button class="btn btn-sm btn-outline-success"
                                                 onclick="checkIn({{ $attendance->employee->id }})">
                                             <i class="fas fa-sign-in-alt"></i>
                                         </button>
                                     @endif
+                                    @can('attendance.update')
                                     <a href="{{ route('attendance.edit', $attendance) }}"
                                        class="btn btn-sm btn-outline-primary">
                                         <i class="fas fa-edit"></i>
                                     </a>
+                                    @endcan
+                                    @can('attendance.delete')
                                     <form action="{{ route('attendance.destroy', $attendance) }}"
                                           method="POST" style="display: inline;">
                                         @csrf
@@ -205,6 +210,7 @@
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>
@@ -222,10 +228,12 @@
                 <i class="fas fa-clock fa-4x text-muted mb-3"></i>
                 <h5 class="text-muted">لا توجد سجلات حضور</h5>
                 <p class="text-muted">ابدأ بتسجيل حضور الموظفين</p>
+                @can('attendance.create')
                 <a href="{{ route('attendance.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus me-2"></i>
                     تسجيل حضور جديد
                 </a>
+                @endcan
             </div>
         @endif
     </div>
