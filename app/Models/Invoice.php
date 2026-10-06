@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -47,6 +48,17 @@ class Invoice extends Model
     public function payments(): HasMany
     {
         return $this->hasMany(InvoicePayment::class);
+    }
+
+    // الفاتورة المتأخرة: حالتها متأخرة، أو مرسلة وتجاوزت تاريخ الاستحقاق وما زال عليها متبقي
+    public function scopeOverdue(Builder $query): Builder
+    {
+        return $query->where(function (Builder $q) {
+            $q->where('status', 'overdue')
+                ->orWhere(fn (Builder $sent) => $sent->where('status', 'sent')
+                    ->whereDate('due_date', '<', today())
+                    ->whereColumn('paid_amount', '<', 'total_amount'));
+        });
     }
 
     // دالة للحصول على المبلغ المتبقي

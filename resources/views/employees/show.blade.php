@@ -28,14 +28,7 @@
                 </h6>
             </div>
             <div class="card-body text-center">
-                <div class="avatar mb-3">
-                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center mx-auto"
-                         style="width: 80px; height: 80px;">
-                        <span class="text-white fw-bold h4">
-                            {{ substr($employee->first_name, 0, 1) }}{{ substr($employee->last_name, 0, 1) }}
-                        </span>
-                    </div>
-                </div>
+                <span class="avatar avatar-lg avatar-gradient mx-auto mb-3">{{ $employee->initials }}</span>
 
                 <h5 class="fw-bold">{{ $employee->full_name }}</h5>
                 <p class="text-muted">{{ $employee->position }}</p>

@@ -18,7 +18,7 @@
                     @can('users.update') <a class="btn btn-sm btn-outline-primary" href="{{ route('users.edit', $user) }}">تعديل</a> @endcan
                     @can('users.delete')
                         @if(!auth()->user()->is($user) && $user->id !== 1 && !$user->hasRole('super-admin'))
-                            <form class="d-inline" action="{{ route('users.destroy', $user) }}" method="POST" onsubmit="return confirm('حذف المستخدم؟')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">حذف</button></form>
+                            <form class="d-inline" action="{{ route('users.destroy', $user) }}" method="POST">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger" data-confirm="هل أنت متأكد من حذف هذا المستخدم؟">حذف</button></form>
                         @endif
                     @endcan
                 </td>

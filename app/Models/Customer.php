@@ -33,9 +33,9 @@ class Customer extends Model
     // دالة للحصول على إجمالي المبالغ المستحقة
     public function getTotalOutstandingAmount(): float
     {
-        return $this->invoices()
-            ->whereIn('status', ['sent', 'overdue'])
-            ->sum('total_amount') - $this->invoices()->sum('paid_amount');
+        $open = $this->invoices()->whereIn('status', ['sent', 'overdue']);
+
+        return (float) $open->sum('total_amount') - (float) $open->sum('paid_amount');
     }
 
     // دالة للتحقق من حد الائتمان

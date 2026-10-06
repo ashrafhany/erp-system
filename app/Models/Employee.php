@@ -44,6 +44,19 @@ class Employee extends Model
         return $this->first_name . ' ' . $this->last_name;
     }
 
+    // اسم مختصر للعرض (تستخدمه بعض الصفحات)
+    public function getNameAttribute(): string
+    {
+        return $this->full_name;
+    }
+
+    // الحرف الأول من الاسمين للأفاتار؛ mb_substr لأن الحروف العربية متعددة البايت،
+    // والفاصل غير المرئي (ZWNJ) يمنع اتصال الحرفين ببعضهما في الخط العربي
+    public function getInitialsAttribute(): string
+    {
+        return mb_substr((string) $this->first_name, 0, 1) . "\u{200C}" . mb_substr((string) $this->last_name, 0, 1);
+    }
+
     // دالة للحصول على حضور اليوم
     public function getTodayAttendance()
     {

@@ -586,9 +586,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // حذف السجل
     window.deleteAttendance = function() {
-        if (confirm('هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.')) {
-            document.getElementById('delete-form').submit();
-        }
+        window.confirmAction({ message: 'هل أنت متأكد من حذف هذا السجل؟ لا يمكن التراجع عن هذا الإجراء.', variant: 'danger' })
+            .then(confirmed => confirmed && document.getElementById('delete-form').submit());
     }
 
     // تحديث العرض عند تحميل الصفحة

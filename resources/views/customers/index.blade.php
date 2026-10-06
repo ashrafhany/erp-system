@@ -102,33 +102,27 @@
                                     <span class="text-muted">غير محدد</span>
                                 @endif
                             </td>
+                            <td><x-status-badge type="customer" :status="$customer->status" /></td>
                             <td>
-                                @if($customer->status == 'active')
-                                    <span class="badge bg-success">نشط</span>
-                                @else
-                                    <span class="badge bg-secondary">غير نشط</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <a href="{{ route('customers.show', $customer) }}"
-                                       class="btn btn-sm btn-outline-info">
-                                        <i class="fas fa-eye"></i>
+                                <div class="table-actions">
+                                    <a href="{{ route('customers.show', $customer) }}" class="btn btn-sm btn-outline-info"
+                                       data-bs-toggle="tooltip" title="عرض" aria-label="عرض">
+                                        <i class="far fa-eye"></i>
                                     </a>
                                     @can('customers.update')
-                                    <a href="{{ route('customers.edit', $customer) }}"
-                                       class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i>
+                                    <a href="{{ route('customers.edit', $customer) }}" class="btn btn-sm btn-outline-primary"
+                                       data-bs-toggle="tooltip" title="تعديل" aria-label="تعديل">
+                                        <i class="far fa-pen-to-square"></i>
                                     </a>
                                     @endcan
                                     @can('customers.delete')
-                                    <form action="{{ route('customers.destroy', $customer) }}"
-                                          method="POST" style="display: inline;">
+                                    <form action="{{ route('customers.destroy', $customer) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('هل أنت متأكد من حذف هذا العميل؟')">
-                                            <i class="fas fa-trash"></i>
+                                                data-confirm="هل أنت متأكد من حذف العميل {{ $customer->name }}؟"
+                                                data-bs-toggle="tooltip" title="حذف" aria-label="حذف">
+                                            <i class="far fa-trash-can"></i>
                                         </button>
                                     </form>
                                     @endcan
@@ -144,10 +138,17 @@
             <div class="d-flex justify-content-center mt-4">
                 {{ $customers->withQueryString()->links() }}
             </div>
+        @elseif(request()->anyFilled(['search', 'status']))
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="fas fa-magnifying-glass"></i></div>
+                <h5>لا توجد نتائج مطابقة</h5>
+                <p class="text-muted">جرّب كلمات بحث أو فلاتر مختلفة</p>
+                <a href="{{ route('customers.index') }}" class="btn btn-soft">إعادة تعيين الفلاتر</a>
+            </div>
         @else
-            <div class="text-center py-5">
-                <i class="fas fa-user-tie fa-4x text-muted mb-3"></i>
-                <h5 class="text-muted">لا يوجد عملاء مسجلين</h5>
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="fas fa-user-tie"></i></div>
+                <h5>لا يوجد عملاء مسجلين</h5>
                 <p class="text-muted">ابدأ بإضافة عميل جديد لإدارة قاعدة بيانات العملاء</p>
                 @can('customers.create')
                 <a href="{{ route('customers.create') }}" class="btn btn-primary">

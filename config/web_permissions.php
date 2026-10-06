@@ -8,6 +8,8 @@
     'الرواتب' => ['payroll.view' => 'عرض', 'payroll.create' => 'إضافة', 'payroll.update' => 'تعديل', 'payroll.delete' => 'حذف', 'payroll.generate' => 'توليد', 'payroll.approve' => 'اعتماد', 'payroll.pay' => 'تسجيل دفع'],
     'العملاء' => ['customers.view' => 'عرض', 'customers.create' => 'إضافة', 'customers.update' => 'تعديل', 'customers.delete' => 'حذف'],
     'الفواتير' => ['invoices.view' => 'عرض', 'invoices.create' => 'إضافة', 'invoices.update' => 'تعديل', 'invoices.delete' => 'حذف', 'invoices.send' => 'إرسال', 'invoices.payment' => 'تسجيل دفعة', 'invoices.reconcile' => 'تصحيح دفعة قديمة'],
+    'المنتجات والمخزون' => ['products.view' => 'عرض', 'products.create' => 'إضافة', 'products.update' => 'تعديل', 'products.delete' => 'حذف', 'products.adjust' => 'تسجيل حركة مخزون'],
+    'التقارير' => ['reports.view' => 'عرض التقارير'],
     'المستخدمون' => ['users.view' => 'عرض', 'users.create' => 'إضافة', 'users.update' => 'تعديل', 'users.delete' => 'حذف'],
     'الأدوار والصلاحيات' => ['roles.view' => 'عرض', 'roles.create' => 'إضافة', 'roles.update' => 'تعديل', 'roles.delete' => 'حذف'],
 ];

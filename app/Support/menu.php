@@ -12,6 +12,8 @@ if (! function_exists('getMenuData')) {
             'payroll' => 'fas fa-money-bill-wave',
             'customers' => 'fas fa-user-tie',
             'invoices' => 'fas fa-file-invoice',
+            'products' => 'fas fa-boxes',
+            'reports' => 'fas fa-chart-bar',
             'users' => 'fas fa-user-cog',
             'roles' => 'fas fa-user-shield',
         ];

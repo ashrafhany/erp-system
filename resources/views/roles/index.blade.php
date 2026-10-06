@@ -13,7 +13,7 @@
             @if($role->id !== 1 && $role->name !== 'super-admin')
                 @can('roles.delete')
                     @if($role->users_count === 0)
-                        <form class="d-inline" action="{{ route('roles.destroy', $role) }}" method="POST" onsubmit="return confirm('حذف الدور؟')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">حذف</button></form>
+                        <form class="d-inline" action="{{ route('roles.destroy', $role) }}" method="POST">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger" data-confirm="هل أنت متأكد من حذف هذا الدور؟">حذف</button></form>
                     @endif
                 @endcan
             @endif

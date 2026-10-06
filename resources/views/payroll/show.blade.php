@@ -19,7 +19,7 @@
             @can('payroll.approve')
             <form action="{{ route('payroll.approve', $payroll) }}" method="POST" class="d-inline">
                 @csrf
-                <button type="submit" class="btn btn-success" onclick="return confirm('هل أنت متأكد من اعتماد هذا السجل؟')">
+                <button type="submit" class="btn btn-success" data-confirm="هل أنت متأكد من اعتماد هذا السجل؟" data-confirm-ok="اعتماد">
                     <i class="fas fa-check me-2"></i>
                     اعتماد
                 </button>
@@ -31,7 +31,7 @@
             <form action="{{ route('payroll.pay', $payroll) }}" method="POST" class="d-inline">
                 @csrf
                 <input type="date" name="payment_date" value="{{ date('Y-m-d') }}" required class="form-control d-inline-block w-auto">
-                <button type="submit" class="btn btn-success" onclick="return confirm('تأكيد دفع الراتب؟')">تسجيل الدفع</button>
+                <button type="submit" class="btn btn-success" data-confirm="تأكيد دفع الراتب؟" data-confirm-ok="تسجيل الدفع">تسجيل الدفع</button>
             </form>
             @endcan
         @endif
@@ -41,8 +41,11 @@
                 طباعة/تصدير
             </button>
             <ul class="dropdown-menu">
+                <li><a class="dropdown-item" href="{{ route('payroll.print', $payroll) }}" target="_blank">
+                    <i class="fas fa-print me-2"></i>كشف راتب للطباعة
+                </a></li>
                 <li><a class="dropdown-item" href="#" onclick="window.print()">
-                    <i class="fas fa-print me-2"></i>طباعة
+                    <i class="fas fa-print me-2"></i>طباعة الصفحة
                 </a></li>
             </ul>
         </div>
@@ -60,13 +63,13 @@
                         <i class="fas fa-user me-2"></i>
                         سجل راتب: {{ $payroll->employee->name }}
                     </h5>
-                    <span class="badge badge-{{ $payroll->status === 'approved' ? 'success' : ($payroll->status === 'pending' ? 'warning' : 'secondary') }} fs-6">
-                        @if($payroll->status === 'approved')
-                            <i class="fas fa-check-circle me-1"></i> معتمد
-                        @elseif($payroll->status === 'pending')
-                            <i class="fas fa-clock me-1"></i> في الانتظار
+                    <span class="badge bg-{{ $payroll->status === 'paid' ? 'success' : ($payroll->status === 'approved' ? 'info' : 'warning') }} fs-6">
+                        @if($payroll->status === 'paid')
+                            <i class="fas fa-check-circle me-1"></i> مدفوع
+                        @elseif($payroll->status === 'approved')
+                            <i class="fas fa-check me-1"></i> معتمد
                         @else
-                            <i class="fas fa-times-circle me-1"></i> مرفوض
+                            <i class="fas fa-clock me-1"></i> مسودة
                         @endif
                     </span>
                 </div>

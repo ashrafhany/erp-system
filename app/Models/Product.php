@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -37,6 +38,19 @@ class Product extends Model
         'cost' => 'float',
         'tax_rate' => 'float',
     ];
+
+    // الرصيد الحالي كاستعلام فرعي (مجموع حركات المخزون)
+    public const STOCK_SQL = '(select coalesce(sum(quantity_change), 0) from inventories where inventories.product_id = products.id)';
+
+    public function scopeWithStock(Builder $query): Builder
+    {
+        return $query->select('products.*')->selectRaw(self::STOCK_SQL . ' as stock');
+    }
+
+    public function scopeLowStock(Builder $query, int $threshold): Builder
+    {
+        return $query->whereRaw(self::STOCK_SQL . ' < ?', [$threshold]);
+    }
 
     /**
      * Get the inventory records for the product.

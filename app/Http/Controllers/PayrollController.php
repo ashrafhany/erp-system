@@ -12,6 +12,7 @@ class PayrollController extends Controller
     public function __construct()
     {
         $this->requireCrudPermissions('payroll');
+        $this->middleware('permission:payroll.view')->only('print');
         $this->middleware('permission:payroll.generate')->only('generatePayroll');
         $this->middleware('permission:payroll.approve')->only('approve');
         $this->middleware('permission:payroll.pay')->only('markPaid');
@@ -42,10 +43,13 @@ class PayrollController extends Controller
             $query->where('status', $request->status);
         }
 
-        $payrolls = $query->latest()->paginate(15);
+        // العدّ من الاستعلام كاملاً وليس من الصفحة الحالية فقط
+        $statusCounts = (clone $query)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
+
+        $payrolls = $query->latest()->paginate(15)->withQueryString();
         $employees = Employee::where('status', 'active')->get();
 
-        return view('payroll.index', compact('payrolls', 'employees'));
+        return view('payroll.index', compact('payrolls', 'employees', 'statusCounts'));
     }
 
     /**
@@ -105,6 +109,12 @@ class PayrollController extends Controller
     {
         $payroll->load('employee');
         return view('payroll.show', compact('payroll'));
+    }
+
+    public function print(PayrollRecord $payroll)
+    {
+        $payroll->load('employee');
+        return view('payroll.print', compact('payroll'));
     }
 
     /**

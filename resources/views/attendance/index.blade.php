@@ -49,58 +49,18 @@
 </div>
 
 <!-- بطاقات سريعة للحضور -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ $attendances->where('status', 'present')->count() }}</h5>
-                        <small>حاضر اليوم</small>
-                    </div>
-                    <i class="fas fa-check-circle fa-2x"></i>
-                </div>
-            </div>
-        </div>
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-sm-6">
+        <x-stat-card label="حاضر" :value="$statusCounts['present'] ?? 0" icon="fas fa-circle-check" color="success" />
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-danger">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ $attendances->where('status', 'absent')->count() }}</h5>
-                        <small>غائب اليوم</small>
-                    </div>
-                    <i class="fas fa-times-circle fa-2x"></i>
-                </div>
-            </div>
-        </div>
+    <div class="col-xl-3 col-sm-6">
+        <x-stat-card label="غائب" :value="$statusCounts['absent'] ?? 0" icon="fas fa-circle-xmark" color="danger" />
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-warning">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ $attendances->where('status', 'late')->count() }}</h5>
-                        <small>متأخر اليوم</small>
-                    </div>
-                    <i class="fas fa-clock fa-2x"></i>
-                </div>
-            </div>
-        </div>
+    <div class="col-xl-3 col-sm-6">
+        <x-stat-card label="متأخر" :value="$statusCounts['late'] ?? 0" icon="fas fa-clock" color="warning" />
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ $attendances->where('status', 'half_day')->count() }}</h5>
-                        <small>نصف يوم</small>
-                    </div>
-                    <i class="fas fa-user-clock fa-2x"></i>
-                </div>
-            </div>
-        </div>
+    <div class="col-xl-3 col-sm-6">
+        <x-stat-card label="نصف يوم" :value="$statusCounts['half_day'] ?? 0" icon="fas fa-user-clock" color="info" />
     </div>
 </div>
 
@@ -131,15 +91,8 @@
                         @foreach($attendances as $attendance)
                         <tr>
                             <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar me-3">
-                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                                             style="width: 35px; height: 35px;">
-                                            <span class="text-white fw-bold small">
-                                                {{ substr($attendance->employee->first_name, 0, 1) }}{{ substr($attendance->employee->last_name, 0, 1) }}
-                                            </span>
-                                        </div>
-                                    </div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="avatar avatar-sm avatar-gradient">{{ $attendance->employee->initials }}</span>
                                     <div>
                                         <div class="fw-bold">{{ $attendance->employee->full_name }}</div>
                                         <small class="text-muted">{{ $attendance->employee->employee_id }}</small>
@@ -175,39 +128,30 @@
                                     <span class="text-muted">--</span>
                                 @endif
                             </td>
+                            <td><x-status-badge type="attendance" :status="$attendance->status" /></td>
                             <td>
-                                @if($attendance->status == 'present')
-                                    <span class="badge bg-success">حاضر</span>
-                                @elseif($attendance->status == 'absent')
-                                    <span class="badge bg-danger">غائب</span>
-                                @elseif($attendance->status == 'late')
-                                    <span class="badge bg-warning">متأخر</span>
-                                @else
-                                    <span class="badge bg-info">نصف يوم</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="btn-group" role="group">
+                                <div class="table-actions">
                                     @if(!$attendance->check_in && auth()->user()->can('attendance.checkin'))
-                                        <button class="btn btn-sm btn-outline-success"
-                                                onclick="checkIn({{ $attendance->employee->id }})">
-                                            <i class="fas fa-sign-in-alt"></i>
+                                        <button type="button" class="btn btn-sm btn-outline-success"
+                                                onclick="checkIn({{ $attendance->employee->id }})"
+                                                data-bs-toggle="tooltip" title="تسجيل دخول" aria-label="تسجيل دخول">
+                                            <i class="fas fa-right-to-bracket"></i>
                                         </button>
                                     @endif
                                     @can('attendance.update')
-                                    <a href="{{ route('attendance.edit', $attendance) }}"
-                                       class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i>
+                                    <a href="{{ route('attendance.edit', $attendance) }}" class="btn btn-sm btn-outline-primary"
+                                       data-bs-toggle="tooltip" title="تعديل" aria-label="تعديل">
+                                        <i class="far fa-pen-to-square"></i>
                                     </a>
                                     @endcan
                                     @can('attendance.delete')
-                                    <form action="{{ route('attendance.destroy', $attendance) }}"
-                                          method="POST" style="display: inline;">
+                                    <form action="{{ route('attendance.destroy', $attendance) }}" method="POST">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('هل أنت متأكد من حذف هذا السجل؟')">
-                                            <i class="fas fa-trash"></i>
+                                                data-confirm="هل أنت متأكد من حذف سجل حضور {{ $attendance->employee->full_name }}؟"
+                                                data-bs-toggle="tooltip" title="حذف" aria-label="حذف">
+                                            <i class="far fa-trash-can"></i>
                                         </button>
                                     </form>
                                     @endcan
@@ -224,9 +168,9 @@
                 {{ $attendances->withQueryString()->links() }}
             </div>
         @else
-            <div class="text-center py-5">
-                <i class="fas fa-clock fa-4x text-muted mb-3"></i>
-                <h5 class="text-muted">لا توجد سجلات حضور</h5>
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="fas fa-clock"></i></div>
+                <h5>لا توجد سجلات حضور</h5>
                 <p class="text-muted">ابدأ بتسجيل حضور الموظفين</p>
                 @can('attendance.create')
                 <a href="{{ route('attendance.create') }}" class="btn btn-primary">
@@ -242,11 +186,13 @@
 
 @push('scripts')
 <script>
-function checkIn(employeeId) {
-    if (confirm('تأكيد تسجيل دخول الموظف؟')) {
+function submitAttendance(action, employeeId, message) {
+    window.confirmAction({ message, title: 'تأكيد التسجيل', okText: 'تأكيد' }).then(confirmed => {
+        if (!confirmed) return;
+
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/attendance/checkin/${employeeId}`;
+        form.action = `/attendance/${action}/${employeeId}`;
 
         const csrf = document.createElement('input');
         csrf.type = 'hidden';
@@ -256,24 +202,15 @@ function checkIn(employeeId) {
         form.appendChild(csrf);
         document.body.appendChild(form);
         form.submit();
-    }
+    });
+}
+
+function checkIn(employeeId) {
+    submitAttendance('checkin', employeeId, 'تأكيد تسجيل دخول الموظف؟');
 }
 
 function checkOut(employeeId) {
-    if (confirm('تأكيد تسجيل خروج الموظف؟')) {
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/attendance/checkout/${employeeId}`;
-
-        const csrf = document.createElement('input');
-        csrf.type = 'hidden';
-        csrf.name = '_token';
-        csrf.value = '{{ csrf_token() }}';
-
-        form.appendChild(csrf);
-        document.body.appendChild(form);
-        form.submit();
-    }
+    submitAttendance('checkout', employeeId, 'تأكيد تسجيل خروج الموظف؟');
 }
 </script>
 @endpush

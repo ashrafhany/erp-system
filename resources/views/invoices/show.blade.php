@@ -15,14 +15,14 @@
             تعديل
         </a>
         @endcan
-        <button type="button" class="btn btn-info" onclick="printInvoice()">
+        <a href="{{ route('invoices.print', $invoice) }}" target="_blank" class="btn btn-info">
             <i class="fas fa-print me-2"></i>
             طباعة
-        </button>
-        <button type="button" class="btn btn-success" onclick="printInvoice()">
+        </a>
+        <a href="{{ route('invoices.print', $invoice) }}" target="_blank" class="btn btn-success">
             <i class="fas fa-download me-2"></i>
             حفظ PDF
-        </button>
+        </a>
     </div>
 @endsection
 
@@ -198,7 +198,7 @@
                 <p class="small text-muted">المسودة فاتورة تحت التجهيز. بعد مراجعتها اختر «تحديد كمرسلة»، ثم «تسجيل دفعة». تتحول إلى مدفوعة تلقائيًا عند سداد كامل الإجمالي.</p>
                 @if($invoice->status == 'draft' && auth()->user()->can('invoices.send'))
                     <form action="{{ route('invoices.send', $invoice) }}" method="POST">@csrf
-                    <button type="submit" class="btn btn-info btn-sm w-100 mb-2" onclick="return confirm('تحديد الفاتورة كمرسلة؟')">
+                    <button type="submit" class="btn btn-info btn-sm w-100 mb-2" data-confirm="تحديد الفاتورة كمرسلة؟ بعدها تُقفل البنود والمبالغ." data-confirm-ok="تحديد كمرسلة">
                         <i class="fas fa-paper-plane me-2"></i>
                         تحديد كمرسلة
                     </button>
@@ -231,12 +231,12 @@
                     @if($invoice->total_amount > 0)
                         <details class="mb-3">
                             <summary class="btn btn-outline-warning btn-sm w-100">تصحيح المبلغ المدفوع</summary>
-                            <form action="{{ route('invoices.reconcile', $invoice) }}" method="POST" class="mt-2" onsubmit="return confirm('تأكيد تصحيح المبلغ المدفوع؟')">
+                            <form action="{{ route('invoices.reconcile', $invoice) }}" method="POST" class="mt-2">
                                 @csrf
                                 <label class="form-label">المبلغ الصحيح</label>
                                 <input class="form-control mb-2" type="number" name="paid_amount" min="0" max="{{ $invoice->total_amount }}" step="0.01" value="{{ min($invoice->paid_amount, $invoice->total_amount) }}" required>
                                 <input class="form-control mb-2" name="reason" minlength="5" maxlength="255" placeholder="سبب التصحيح" required>
-                                <button class="btn btn-outline-warning btn-sm w-100">حفظ التصحيح</button>
+                                <button class="btn btn-outline-warning btn-sm w-100" data-confirm="تأكيد تصحيح المبلغ المدفوع؟">حفظ التصحيح</button>
                             </form>
                         </details>
                     @endif
@@ -244,7 +244,7 @@
 
                 @if($invoice->status === 'draft' && $invoice->paid_amount == 0 && auth()->user()->can('invoices.update'))
                     <form action="{{ route('invoices.cancel', $invoice) }}" method="POST">@csrf
-                    <button type="submit" class="btn btn-danger btn-sm w-100 mb-2" onclick="return confirm('إلغاء الفاتورة؟')">
+                    <button type="submit" class="btn btn-danger btn-sm w-100 mb-2" data-confirm="هل تريد إلغاء الفاتورة؟" data-confirm-title="إلغاء الفاتورة" data-confirm-variant="danger" data-confirm-ok="نعم، ألغِ الفاتورة">
                         <i class="fas fa-times-circle me-2"></i>
                         إلغاء الفاتورة
                     </button>
@@ -340,9 +340,8 @@ function printInvoice() {
 }
 
 function duplicateInvoice() {
-    if (confirm('هل تريد إنشاء فاتورة جديدة بنفس البيانات؟')) {
-        window.location.href = '/invoices/create?duplicate={{ $invoice->id }}';
-    }
+    window.confirmAction({ message: 'هل تريد إنشاء فاتورة جديدة بنفس البيانات؟', okText: 'إنشاء نسخة' })
+        .then(confirmed => { if (confirmed) window.location.href = '/invoices/create?duplicate={{ $invoice->id }}'; });
 }
 </script>
 @endpush

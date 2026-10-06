@@ -65,58 +65,18 @@
 </div>
 
 <!-- بطاقات الإحصائيات -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ $invoiceStats['total'] }}</h5>
-                        <small>إجمالي الفواتير</small>
-                    </div>
-                    <i class="fas fa-file-invoice fa-2x"></i>
-                </div>
-            </div>
-        </div>
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-sm-6">
+        <x-stat-card label="إجمالي الفواتير" :value="$invoiceStats['total']" icon="fas fa-file-invoice" color="info" />
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ $invoiceStats['paid'] }}</h5>
-                        <small>مدفوعة</small>
-                    </div>
-                    <i class="fas fa-check-circle fa-2x"></i>
-                </div>
-            </div>
-        </div>
+    <div class="col-xl-3 col-sm-6">
+        <x-stat-card label="مدفوعة" :value="$invoiceStats['paid']" icon="fas fa-circle-check" color="success" />
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-warning">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ $invoiceStats['pending'] }}</h5>
-                        <small>معلقة</small>
-                    </div>
-                    <i class="fas fa-clock fa-2x"></i>
-                </div>
-            </div>
-        </div>
+    <div class="col-xl-3 col-sm-6">
+        <x-stat-card label="معلقة" :value="$invoiceStats['pending']" icon="fas fa-clock" color="warning" />
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-danger">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ $invoiceStats['overdue'] }}</h5>
-                        <small>متأخرة</small>
-                    </div>
-                    <i class="fas fa-exclamation-triangle fa-2x"></i>
-                </div>
-            </div>
-        </div>
+    <div class="col-xl-3 col-sm-6">
+        <x-stat-card label="متأخرة" :value="$invoiceStats['overdue']" icon="fas fa-triangle-exclamation" color="danger" />
     </div>
 </div>
 
@@ -172,43 +132,43 @@
                             <td>{{ number_format($invoice->paid_amount, 2) }} ج.م</td>
                             <td>
                                 @if($invoice->status == 'draft')
-                                    <span class="badge bg-secondary">مسودة</span>
+                                    <span class="badge badge-dot bg-secondary">مسودة</span>
                                 @elseif($invoice->status == 'sent' && $invoice->due_date->lt(today()) && $invoice->paid_amount < $invoice->total_amount)
-                                    <span class="badge bg-danger">متأخرة</span>
+                                    <span class="badge badge-dot bg-danger">متأخرة</span>
                                 @elseif($invoice->status == 'sent')
-                                    <span class="badge bg-primary">{{ $invoice->paid_amount > 0 && $invoice->paid_amount < $invoice->total_amount ? 'مدفوعة جزئيًا' : 'مرسلة' }}</span>
+                                    <span class="badge badge-dot bg-primary">{{ $invoice->paid_amount > 0 && $invoice->paid_amount < $invoice->total_amount ? 'مدفوعة جزئيًا' : 'مرسلة' }}</span>
                                 @elseif($invoice->status == 'paid')
-                                    <span class="badge bg-success">مدفوعة</span>
+                                    <span class="badge badge-dot bg-success">مدفوعة</span>
                                 @elseif($invoice->status == 'overdue')
-                                    <span class="badge bg-danger">{{ $invoice->paid_amount > 0 ? 'متأخرة ومدفوعة جزئيًا' : 'متأخرة' }}</span>
+                                    <span class="badge badge-dot bg-danger">{{ $invoice->paid_amount > 0 ? 'متأخرة ومدفوعة جزئيًا' : 'متأخرة' }}</span>
                                 @else
-                                    <span class="badge bg-warning">ملغاة</span>
+                                    <span class="badge badge-dot bg-warning">ملغاة</span>
                                 @endif
                                 @if($invoice->paid_amount > $invoice->total_amount || ($invoice->status === 'draft' && $invoice->paid_amount > 0) || ($invoice->status === 'paid' && $invoice->paid_amount < $invoice->total_amount))
-                                    <span class="badge bg-warning text-dark">تحتاج مراجعة</span>
+                                    <span class="badge badge-dot bg-warning text-dark">تحتاج مراجعة</span>
                                 @endif
                             </td>
                             <td>
-                                <div class="btn-group" role="group">
-                                    <a href="{{ route('invoices.show', $invoice) }}"
-                                       class="btn btn-sm btn-outline-info">
-                                        <i class="fas fa-eye"></i>
+                                <div class="table-actions">
+                                    <a href="{{ route('invoices.show', $invoice) }}" class="btn btn-sm btn-outline-info"
+                                       data-bs-toggle="tooltip" title="عرض" aria-label="عرض">
+                                        <i class="far fa-eye"></i>
                                     </a>
                                     @can('invoices.update')
-                                        <a href="{{ route('invoices.edit', $invoice) }}"
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
+                                        <a href="{{ route('invoices.edit', $invoice) }}" class="btn btn-sm btn-outline-primary"
+                                           data-bs-toggle="tooltip" title="تعديل" aria-label="تعديل">
+                                            <i class="far fa-pen-to-square"></i>
                                         </a>
                                     @endcan
                                     @if($invoice->status == 'draft')
                                         @can('invoices.delete')
-                                        <form action="{{ route('invoices.destroy', $invoice) }}"
-                                              method="POST" style="display: inline;">
+                                        <form action="{{ route('invoices.destroy', $invoice) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('هل أنت متأكد من حذف هذه الفاتورة؟')">
-                                                <i class="fas fa-trash"></i>
+                                                    data-confirm="هل أنت متأكد من حذف الفاتورة {{ $invoice->invoice_number }}؟"
+                                                    data-bs-toggle="tooltip" title="حذف" aria-label="حذف">
+                                                <i class="far fa-trash-can"></i>
                                             </button>
                                         </form>
                                         @endcan
@@ -225,10 +185,17 @@
             <div class="d-flex justify-content-center mt-4">
                 {{ $invoices->withQueryString()->links() }}
             </div>
+        @elseif(request()->anyFilled(['customer_id', 'status', 'date_from', 'date_to']))
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="fas fa-magnifying-glass"></i></div>
+                <h5>لا توجد نتائج مطابقة</h5>
+                <p class="text-muted">جرّب فلاتر مختلفة</p>
+                <a href="{{ route('invoices.index') }}" class="btn btn-soft">إعادة تعيين الفلاتر</a>
+            </div>
         @else
-            <div class="text-center py-5">
-                <i class="fas fa-file-invoice fa-4x text-muted mb-3"></i>
-                <h5 class="text-muted">لا توجد فواتير</h5>
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="fas fa-file-invoice"></i></div>
+                <h5>لا توجد فواتير</h5>
                 <p class="text-muted">ابدأ بإنشاء فاتورة جديدة</p>
                 @can('invoices.create')
                 <a href="{{ route('invoices.create') }}" class="btn btn-primary">

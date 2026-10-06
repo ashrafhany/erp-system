@@ -37,10 +37,13 @@ class AttendanceController extends Controller
             $query->where('employee_id', $request->employee_id);
         }
 
-        $attendances = $query->latest()->paginate(15);
+        // العدّ من الاستعلام كاملاً وليس من الصفحة الحالية فقط
+        $statusCounts = (clone $query)->selectRaw('status, count(*) as total')->groupBy('status')->pluck('total', 'status');
+
+        $attendances = $query->latest()->paginate(15)->withQueryString();
         $employees = Employee::where('status', 'active')->get();
 
-        return view('attendance.index', compact('attendances', 'employees'));
+        return view('attendance.index', compact('attendances', 'employees', 'statusCounts'));
     }
 
     /**

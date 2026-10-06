@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Invoice;
-use App\Models\InvoiceItem;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -15,7 +14,7 @@ class InvoiceController extends Controller
     public function __construct()
     {
         $this->requireCrudPermissions('invoices');
-        $this->middleware('permission:invoices.update')->only(['addItem', 'removeItem']);
+        $this->middleware('permission:invoices.view')->only('print');
         $this->middleware('permission:invoices.send')->only('send');
         $this->middleware('permission:invoices.payment')->only('recordPayment');
         $this->middleware('permission:invoices.reconcile')->only('reconcilePayment');
@@ -37,10 +36,7 @@ class InvoiceController extends Controller
         // فلترة بالحالة
         if ($request->filled('status')) {
             if ($request->status === 'overdue') {
-                $query->where(function ($q) {
-                    $q->where('status', 'overdue')
-                        ->orWhere(fn ($sent) => $sent->where('status', 'sent')->whereDate('due_date', '<', today())->whereColumn('paid_amount', '<', 'total_amount'));
-                });
+                $query->overdue();
             } elseif ($request->status === 'sent') {
                 $query->where('status', 'sent')->whereDate('due_date', '>=', today());
             } else {
@@ -61,10 +57,7 @@ class InvoiceController extends Controller
             'total' => (clone $query)->count(),
             'paid' => (clone $query)->where('status', 'paid')->count(),
             'pending' => (clone $query)->where('status', 'sent')->whereDate('due_date', '>=', today())->count(),
-            'overdue' => (clone $query)->where(function ($q) {
-                $q->where('status', 'overdue')
-                    ->orWhere(fn ($sent) => $sent->where('status', 'sent')->whereDate('due_date', '<', today())->whereColumn('paid_amount', '<', 'total_amount'));
-            })->count(),
+            'overdue' => (clone $query)->overdue()->count(),
             'inconsistent' => (clone $query)->where(function ($q) {
                 $q->whereColumn('paid_amount', '>', 'total_amount')
                     ->orWhere(fn ($paid) => $paid->where('status', 'paid')->whereColumn('paid_amount', '<', 'total_amount'))
@@ -166,6 +159,12 @@ class InvoiceController extends Controller
         return view('invoices.show', compact('invoice', 'paymentAdjustments'));
     }
 
+    public function print(Invoice $invoice)
+    {
+        $invoice->load(['customer', 'items']);
+        return view('invoices.print', compact('invoice'));
+    }
+
     /**
      * Show the form for editing the specified resource.
      */
@@ -262,51 +261,6 @@ class InvoiceController extends Controller
 
         return redirect()->route('invoices.index')
                        ->with('success', 'تم حذف الفاتورة بنجاح');
-    }
-
-    /**
-     * إضافة عنصر للفاتورة
-     */
-    public function addItem(Request $request, Invoice $invoice)
-    {
-        abort_unless($invoice->status === 'draft' && $invoice->paid_amount == 0, 403);
-        $validator = Validator::make($request->all(), [
-            'description' => 'required|string',
-            'quantity' => 'required|integer|min:1',
-            'unit_price' => 'required|numeric|min:0'
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()
-                           ->withErrors($validator)
-                           ->withInput();
-        }
-
-        InvoiceItem::create([
-            'invoice_id' => $invoice->id,
-            'description' => $request->description,
-            'quantity' => $request->quantity,
-            'unit_price' => $request->unit_price,
-            'total_price' => $request->quantity * $request->unit_price
-        ]);
-
-        return redirect()->back()
-                       ->with('success', 'تم إضافة العنصر بنجاح');
-    }
-
-    /**
-     * حذف عنصر من الفاتورة
-     */
-    public function removeItem(InvoiceItem $item)
-    {
-        abort_unless($item->invoice->status === 'draft' && $item->invoice->paid_amount == 0, 403);
-        if ($item->invoice->items()->count() <= 1) {
-            return back()->with('error', 'لا يمكن حذف آخر بند في الفاتورة.');
-        }
-        $item->delete();
-
-        return redirect()->back()
-                       ->with('success', 'تم حذف العنصر بنجاح');
     }
 
     /**

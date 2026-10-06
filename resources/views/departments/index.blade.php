@@ -14,7 +14,7 @@
                 @can('departments.update')<a href="{{ route('departments.edit', $department) }}" class="btn btn-sm btn-outline-primary">تعديل</a>@endcan
                 @can('departments.delete')
                     @if(!($counts[$department->name] ?? 0))
-                    <form action="{{ route('departments.destroy', $department) }}" method="POST" class="d-inline" onsubmit="return confirm('حذف القسم؟')">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger">حذف</button></form>
+                    <form action="{{ route('departments.destroy', $department) }}" method="POST" class="d-inline">@csrf @method('DELETE')<button class="btn btn-sm btn-outline-danger" data-confirm="هل أنت متأكد من حذف هذا القسم؟">حذف</button></form>
                     @endif
                 @endcan
             </td></tr>

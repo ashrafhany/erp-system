@@ -58,58 +58,18 @@
 </div>
 
 <!-- بطاقات الإحصائيات -->
-<div class="row mb-4">
-    <div class="col-md-3">
-        <div class="card text-white bg-info">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ $payrolls->total() }}</h5>
-                        <small>إجمالي السجلات</small>
-                    </div>
-                    <i class="fas fa-money-bill-wave fa-2x"></i>
-                </div>
-            </div>
-        </div>
+<div class="row g-4 mb-4">
+    <div class="col-xl-3 col-sm-6">
+        <x-stat-card label="إجمالي السجلات" :value="$payrolls->total()" icon="fas fa-money-bill-wave" color="info" />
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-success">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ $payrolls->where('status', 'paid')->count() }}</h5>
-                        <small>مدفوع</small>
-                    </div>
-                    <i class="fas fa-check-circle fa-2x"></i>
-                </div>
-            </div>
-        </div>
+    <div class="col-xl-3 col-sm-6">
+        <x-stat-card label="مدفوع" :value="$statusCounts['paid'] ?? 0" icon="fas fa-circle-check" color="success" />
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-warning">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ $payrolls->where('status', 'approved')->count() }}</h5>
-                        <small>معتمد</small>
-                    </div>
-                    <i class="fas fa-clock fa-2x"></i>
-                </div>
-            </div>
-        </div>
+    <div class="col-xl-3 col-sm-6">
+        <x-stat-card label="معتمد" :value="$statusCounts['approved'] ?? 0" icon="fas fa-stamp" color="warning" />
     </div>
-    <div class="col-md-3">
-        <div class="card text-white bg-secondary">
-            <div class="card-body">
-                <div class="d-flex justify-content-between">
-                    <div>
-                        <h5>{{ $payrolls->where('status', 'draft')->count() }}</h5>
-                        <small>مسودة</small>
-                    </div>
-                    <i class="fas fa-edit fa-2x"></i>
-                </div>
-            </div>
-        </div>
+    <div class="col-xl-3 col-sm-6">
+        <x-stat-card label="مسودة" :value="$statusCounts['draft'] ?? 0" icon="far fa-file-lines" color="secondary" />
     </div>
 </div>
 
@@ -142,15 +102,8 @@
                         @foreach($payrolls as $payroll)
                         <tr>
                             <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar me-3">
-                                        <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center"
-                                             style="width: 35px; height: 35px;">
-                                            <span class="text-white fw-bold small">
-                                                {{ substr($payroll->employee->first_name, 0, 1) }}{{ substr($payroll->employee->last_name, 0, 1) }}
-                                            </span>
-                                        </div>
-                                    </div>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="avatar avatar-sm avatar-gradient">{{ $payroll->employee->initials }}</span>
                                     <div>
                                         <div class="fw-bold">{{ $payroll->employee->full_name }}</div>
                                         <small class="text-muted">{{ $payroll->employee->employee_id }}</small>
@@ -184,48 +137,40 @@
                             <td>
                                 <span class="fw-bold">{{ number_format($payroll->net_salary, 2) }} ج.م</span>
                             </td>
+                            <td><x-status-badge type="payroll" :status="$payroll->status" /></td>
                             <td>
-                                @if($payroll->status == 'draft')
-                                    <span class="badge bg-secondary">مسودة</span>
-                                @elseif($payroll->status == 'approved')
-                                    <span class="badge bg-warning">معتمد</span>
-                                @else
-                                    <span class="badge bg-success">مدفوع</span>
-                                @endif
-                            </td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <a href="{{ route('payroll.show', $payroll) }}"
-                                       class="btn btn-sm btn-outline-info">
-                                        <i class="fas fa-eye"></i>
+                                <div class="table-actions">
+                                    <a href="{{ route('payroll.show', $payroll) }}" class="btn btn-sm btn-outline-info"
+                                       data-bs-toggle="tooltip" title="عرض" aria-label="عرض">
+                                        <i class="far fa-eye"></i>
                                     </a>
                                     @if($payroll->status != 'paid')
                                         @can('payroll.update')
-                                        <a href="{{ route('payroll.edit', $payroll) }}"
-                                           class="btn btn-sm btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
+                                        <a href="{{ route('payroll.edit', $payroll) }}" class="btn btn-sm btn-outline-primary"
+                                           data-bs-toggle="tooltip" title="تعديل" aria-label="تعديل">
+                                            <i class="far fa-pen-to-square"></i>
                                         </a>
                                         @endcan
                                         @if($payroll->status == 'draft')
                                             @can('payroll.approve')
-                                            <form action="{{ route('payroll.approve', $payroll) }}"
-                                                  method="POST" style="display: inline;">
+                                            <form action="{{ route('payroll.approve', $payroll) }}" method="POST">
                                                 @csrf
                                                 <button type="submit" class="btn btn-sm btn-outline-success"
-                                                        onclick="return confirm('تأكيد اعتماد الراتب؟')">
+                                                        data-confirm="تأكيد اعتماد راتب {{ $payroll->employee->full_name }}؟" data-confirm-ok="اعتماد"
+                                                        data-bs-toggle="tooltip" title="اعتماد" aria-label="اعتماد">
                                                     <i class="fas fa-check"></i>
                                                 </button>
                                             </form>
                                             @endcan
                                         @endif
                                         @can('payroll.delete')
-                                        <form action="{{ route('payroll.destroy', $payroll) }}"
-                                              method="POST" style="display: inline;">
+                                        <form action="{{ route('payroll.destroy', $payroll) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-sm btn-outline-danger"
-                                                    onclick="return confirm('هل أنت متأكد من حذف هذا السجل؟')">
-                                                <i class="fas fa-trash"></i>
+                                                    data-confirm="هل أنت متأكد من حذف سجل راتب {{ $payroll->employee->full_name }}؟"
+                                                    data-bs-toggle="tooltip" title="حذف" aria-label="حذف">
+                                                <i class="far fa-trash-can"></i>
                                             </button>
                                         </form>
                                         @endcan
@@ -243,9 +188,9 @@
                 {{ $payrolls->withQueryString()->links() }}
             </div>
         @else
-            <div class="text-center py-5">
-                <i class="fas fa-money-bill-wave fa-4x text-muted mb-3"></i>
-                <h5 class="text-muted">لا توجد سجلات رواتب</h5>
+            <div class="empty-state">
+                <div class="empty-state-icon"><i class="fas fa-money-bill-wave"></i></div>
+                <h5>لا توجد سجلات رواتب</h5>
                 <p class="text-muted">ابدأ بإنشاء سجل راتب جديد</p>
                 @can('payroll.create')
                 <a href="{{ route('payroll.create') }}" class="btn btn-primary">

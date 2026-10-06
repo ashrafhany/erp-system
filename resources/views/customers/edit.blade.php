@@ -596,9 +596,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // حذف العميل
     window.deleteCustomer = function() {
-        if (confirm('هل أنت متأكد من حذف هذا العميل؟ لا يمكن التراجع عن هذا الإجراء.')) {
-            document.getElementById('delete-form').submit();
-        }
+        window.confirmAction({ message: 'هل أنت متأكد من حذف هذا العميل؟ لا يمكن التراجع عن هذا الإجراء.', variant: 'danger' })
+            .then(confirmed => confirmed && document.getElementById('delete-form').submit());
     }
 });
 </script>

@@ -18,10 +18,30 @@ class EmployeeController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $employees = Employee::latest()->paginate(10);
-        return view('employees.index', compact('employees'));
+        $query = Employee::query();
+
+        // كل كلمة في البحث يجب أن تطابق الاسم الأول أو الأخير أو الرقم أو البريد
+        if ($request->filled('search')) {
+            foreach (preg_split('/\s+/u', trim($request->search)) as $term) {
+                $query->where(fn ($q) => $q->where('first_name', 'like', "%{$term}%")
+                    ->orWhere('last_name', 'like', "%{$term}%")
+                    ->orWhere('employee_id', 'like', "%{$term}%")
+                    ->orWhere('email', 'like', "%{$term}%"));
+            }
+        }
+        if ($request->filled('department')) {
+            $query->where('department', $request->department);
+        }
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $employees = $query->latest()->paginate(10)->withQueryString();
+        $departments = Employee::whereNotNull('department')->distinct()->orderBy('department')->pluck('department');
+
+        return view('employees.index', compact('employees', 'departments'));
     }
 
     /**
